@@ -8,7 +8,7 @@ end
 
 function Button:onMousePressed( x, y, button )
 	if vector(self.pos.x+13,self.pos.y+13):distance( vector(x,y) ) < 13 then
-		Commands:addCommand( currentWaldo, self.id )
+		commandQueue[currentWaldo]:addCommand( self.id )
 	end
 end
 

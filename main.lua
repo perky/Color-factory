@@ -20,9 +20,9 @@ TAU = 2 * math.pi
 GAME_SPEED = 1
 TILE_SIZE = 64
 
-WALDO_RED 	= 0
-WALDO_GREEN = 1
-WALDO_BLUE	= 2
+WALDO_RED 	= 1
+WALDO_GREEN = 2
+WALDO_BLUE	= 3
 
 UP 			= 0
 RIGHT 		= 1
@@ -35,23 +35,24 @@ function love.load()
 	love.graphics.setBackgroundColor( 34, 34, 34 )
 	header_image = love.graphics.newImage('images/header.png')
 	
-	Objects 		= {}
-	Commands1		= CommandQueue:new( WALDO_GREEN )
-	Commands2		= CommandQueue:new( WALDO_RED )
-	Commands = Commands1
+	Objects 			= {}
+	commandQueue 	= {}
+	commandQueue[ WALDO_GREEN ] = CommandQueue:new( WALDO_GREEN )
+	commandQueue[ WALDO_RED ]	 = CommandQueue:new( WALDO_RED )
 	
 	currentWaldo = WALDO_GREEN
 	waldos		 = {}
 	
-	waldos[WALDO_BLUE] 	= Waldo:new( 0, 0, "Blue Waldo" )
+	waldos[WALDO_BLUE] 	= Waldo:new( 0, 0, "Blue Waldo", WALDO_BLUE )
 	waldos[WALDO_BLUE]:setColor( 0, 150, 255 )
-	waldos[WALDO_GREEN] 	= Waldo:new( 0, 0, "Green Waldo" )
+	waldos[WALDO_GREEN] 	= Waldo:new( 0, 0, "Green Waldo", WALDO_GREEN )
 	waldos[WALDO_GREEN]:setColor( 55, 255, 55 )
-	waldos[WALDO_RED] 	= Waldo:new( 0, 0, "Red Waldo" )
+	waldos[WALDO_RED] 	= Waldo:new( 0, 0, "Red Waldo", WALDO_RED )
 	waldos[WALDO_RED]:setColor( 255, 55, 55 )
 	
-	loadLevel( 1 )
+	Timer.addPeriodic( 1, nextTick )
 	
+	loadLevel( 1 )
 	
 	-- Create buttons.
 	commandButtons = {}
@@ -63,6 +64,10 @@ function love.load()
 			n = n + 1
 		end
 	end
+end
+
+function nextTick()
+	Beholder.trigger('nextTick')
 end
 
 function setupWaldo( waldoColor, gridX, gridY, length, direction )
@@ -80,37 +85,15 @@ function addItem( className, gridX, gridY, ... )
 end
 
 function loadLevel( levelNumber )
-	Commands.commands.current = Commands.commands:size()
-	Commands.state = STOPPED
+	commandQueue[currentWaldo]:stop()
 	clearPaint()
 	
 	loadedLevel = loadfile('levels/level_' .. levelNumber .. '.lua')
 	currentLevel = loadedLevel()
 end
 
-function level1()
-	Commands.commands.current = Commands.commands:size()
-	Commands.state = STOPPED
-	clearPaint()
-	
-	waldos[WALDO_RED]:setup( 3, 5, 2, 'left' )
-	waldos[WALDO_GREEN]:setup( 3, 7, 2, 'right' )
-	waldos[WALDO_BLUE]:setup( 5, 7, 2, 'right' )
-	Input:setup( 1, 5, IO_IN )
-	Output:setup( 12, 12, IO_OUT, DETECTS_COLOR, PAINT_ORANGE )
-	--Output2:setup( 3, 4, IO_OUT, DETECTS_QUANTITY, 6 )
-	--SensorGreen:setup( 3, 3, DETECTS_COLOR, PAINT_RED )
-	--SensorQuantity:setup( 1, 7, DETECTS_COLOR, PAINT_RED )
-	--SensorQuantity2:setup( 2, 7, DETECTS_QUANTITY, 6 )
-	--SensorQuantity3:setup( 2, 6, DETECTS_QUANTITY, 3 )
-	--boxer:setup( 4, 5 )
-	--boxer2:setup( 5, 5 )
-	mixer:setup( 4, 5 )
-end
-
 function resetLevel()
-	Commands.commands.current = Commands.commands:size()
-	Commands.state = STOPPED
+	commandQueue[currentWaldo]:stop()
 	clearPaint()
 	
 	for k, v in ipairs( Objects ) do
@@ -157,8 +140,7 @@ function love.draw()
 	love.graphics.draw( header_image, 0, 0 )
 	
 	-- Draw commands.
-	Commands1:draw()
-	Commands2:draw()
+	for k, v in pairs( commandQueue ) do v:draw( 0, k*50 ) end
 	
 	-- Draw currently selected waldo color.
 	love.graphics.setColor( waldos[currentWaldo].color )
@@ -179,10 +161,8 @@ function switchWaldo()
 	--]]
 	if currentWaldo == WALDO_RED then
 		currentWaldo = WALDO_GREEN
-		Commands = Commands1
 	else
 		currentWaldo = WALDO_RED
-		Commands = Commands2
 	end
 end
 
@@ -194,8 +174,6 @@ function love.mousepressed( x, y, key )
 	for k, v in ipairs( commandButtons ) do
 		v:onMousePressed( x, y, key )
 	end
-	
-	Commands:onMousePressed( x, y, key )
 end
 
 function love.mousereleased( x, y, key )
@@ -208,26 +186,25 @@ function love.keypressed( key, unicode )
 	if key == 'tab' then
 		switchWaldo()
 	elseif key == 'q' then
-		Commands:addCommand( currentWaldo, CMD_ROTATE_CCW )
+		commandQueue[currentWaldo]:addCommand( CMD_ROTATE_CCW )
 	elseif key == 'w' then
-		Commands:addCommand( currentWaldo, CMD_GRABDROP )
+		commandQueue[currentWaldo]:addCommand( CMD_GRABDROP )
 	elseif key == 'e' then
-		Commands:addCommand( currentWaldo, CMD_ROTATE_CW )
+		commandQueue[currentWaldo]:addCommand( CMD_ROTATE_CW )
 	elseif key == 'r' then
-		Commands:addCommand( currentWaldo, CMD_EXTEND )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_EXTEND )
 	elseif key == 'i' then
-		Commands:addCommand( currentWaldo, CMD_INPUT )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_INPUT )
 	elseif key == 'o' then
-		Commands:addCommand( currentWaldo, CMD_OUTPUT )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_OUTPUT )
 	elseif key == 'a' then
-		Commands:addCommand( currentWaldo, CMD_SENSE )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_SENSE )
 	elseif key == 's' then
-		Commands:addCommand( currentWaldo, CMD_JUMP )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_JUMP )
 	elseif key == 'd' then
-		Commands:addCommand( currentWaldo, CMD_LOOP )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_LOOP )
 	elseif key == ' ' then
-		Commands1:toggleRun()
-		Commands2:toggleRun()
+		for k, v in pairs( commandQueue ) do v:toggleRun() end
 	elseif key == '.' then
 		resetLevel(  )
 	elseif key == 'up' then
@@ -235,16 +212,16 @@ function love.keypressed( key, unicode )
 	elseif key == 'down' then
 		GAME_SPEED = GAME_SPEED / 2
 	elseif key == 'backspace' then
-		Commands:removeCommand()
+		commandQueue[currentWaldo]:removeCommand()
 	elseif key == 't' then
-		Commands:addCommand( currentWaldo, CMD_VERTICAL )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_VERTICAL )
 	elseif key == 'f' then
-		Commands:addCommand( currentWaldo, CMD_HORIZONTAL )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_HORIZONTAL )
 	elseif key == 'left' then
-		Commands.commands:prev()
+		commandQueue[currentWaldo]:prev()
 	elseif key == 'right' then
-		Commands.commands:next()
+		commandQueue[currentWaldo]:next()
 	elseif key == 'x' then
-		Commands:addCommand( currentWaldo, CMD_JUMPOUT )
+		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_JUMPOUT )
 	end
 end

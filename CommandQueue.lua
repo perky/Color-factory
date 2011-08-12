@@ -23,11 +23,14 @@ PLAYING			= 1
 PAUSED			= 2
 
 function CommandQueue:initialize( waldoColor )
-	self.commands = Ringbuffer()
+	self.commands = {}
+	self.commandsPos = 0
+	
 	self.running = false
 	self.state = STOPPED
 	self.loopPoints = {}
 	self:observe('fireSensorTrue', CommandQueue.sensorJump, self)
+	self:observe('nextTick', CommandQueue.runCommand, self)
 	self.commandingWaldo = waldoColor
 end
 
@@ -48,67 +51,85 @@ function CommandQueue.loadImages()
 end
 CommandQueue.loadImages()
 
-function CommandQueue:addCommand( waldo, command )
-	print(waldo,command)
-	table.insert(self.commands.items, self.commands.current+1, { waldo, command })
-	self.commands:next()
+function CommandQueue:addCommand( command )
+	
+	table.insert(self.commands, self.commandsPos, command )
+	self.commandsPos = self.commandsPos + 1
+	
 end
 
 function CommandQueue:removeCommand( pos )
-	self.commands:prev()
-	self.commands:removeAt( 1 )
+	self.commandsPos = self.commandsPos - 1
+	table.remove( self.commands, pos or self.commandsPos )
 end
 
-function CommandQueue:onMousePressed( x, y, key )
-	
-end
-
-function CommandQueue:draw()
+function CommandQueue:draw( x, y )
 	love.graphics.setColor( 255, 255, 255 )
-	--love.graphics.print( "Commands: " .. currentWaldo .. " " .. self.commands:size() .. " " .. self.commands.current, 20, 8 )
-	
-	if self.commandingWaldo == WALDO_GREEN then
-		ypos = 60
-	else
-		ypos = 80
-	end
 	love.graphics.setColor( waldos[self.commandingWaldo].color )
-	for k, v in pairs( self.commands.items ) do
-		
-		if v[2] == CMD_INPUT or v[2] == CMD_OUTPUT then
+	love.graphics.print( self.commandsPos, 10, 200 )
+	-- Draw commands.
+	for k, command in pairs( self.commands ) do
+		if command == CMD_INPUT or command == CMD_OUTPUT then
 			love.graphics.setColor( 255, 255, 255 )
 		end
-		love.graphics.draw( self.commandImages[v[2]], 420+(64*k)-((self.commands.current-1)*64), ypos )
+		love.graphics.draw( self.commandImages[command], 420+(64*k)-((self.commandsPos-1)*64), y )
 	end
 end
 
 function CommandQueue:toggleRun()
 	if self.state == STOPPED then
-		self.commands.current = 0
-		self.state = PLAYING
-		self:runCommand()
+		self.commandsPos = 0
+		self:play()
 	else
 		if self.state == PLAYING then
-			self.state = PAUSED
+			self:pause()
 		else
-			self.state = PLAYING
-			self:runCommand()
+			self:play()
 		end
+	end
+end
+
+function CommandQueue:play()
+	self.state = PLAYING
+	self:runCommand()
+end
+
+function CommandQueue:pause()
+	self.state = PAUSED
+end
+
+function CommandQueue:stop()
+	self.commandsPos = #self.commands
+	self.state = STOPPED
+end
+
+function CommandQueue:next()
+	self.commandsPos = self.commandsPos + 1
+	if self.commandsPos > #self.commands then
+		self.commandsPos = 0
+	end
+end
+
+function CommandQueue:prev()
+	self.commandsPos = self.commandsPos - 1
+	if self.commandsPos < 0 then
+		self.commandsPos = #self.commands
 	end
 end
 
 function CommandQueue:runCommand()
 	if self.state == PAUSED then return end
 	
-	local commandTable = self.commands:next()
+	local command = self.commands[ self.commandsPos ]
+	local waldo	  = self.commandingWaldo
+	
+	-- Move command pos on.
+	self:next()
+	
+	-- Tell each object to perform a tick.
 	for k, v in ipairs( Objects ) do v:tick() end
 	
-	if commandTable == nil then
-		return
-	end
-	
-	local waldo			 = self.commandingWaldo
-	local command		 = commandTable[2]
+	if command == nil then return end
 	
 	if command == CMD_ROTATE_CW then
 		waldos[waldo]:rotateArm( 0 )
@@ -144,11 +165,11 @@ function CommandQueue:runCommand()
 end
 
 function CommandQueue:sensorJump( )
-	if self.commands.current >= self.commands:size() then return end
+	if self.commandsPos >= #self.commands then return end
 	local waldo = lastWaldo
-	for i = self.commands.current+1, self.commands:size() do
-		local command = self.commands.items[i]
-		if command and command[1] == waldo and (command[2] == CMD_JUMP or command[2] == CMD_SENSE) then
+	for i = self.commandsPos+1, #self.commands do
+		local command = self.commands[i]
+		if command and self.commandingWaldo == waldo and (command == CMD_JUMP or command == CMD_SENSE) then
 			self.commands.current = i
 			break
 		end
@@ -156,11 +177,11 @@ function CommandQueue:sensorJump( )
 end
 
 function CommandQueue:jump( )
-	if self.commands.current >= self.commands:size() then return end
+	if self.commandsPos >= #self.commands then return end
 	local waldo = lastWaldo
-	for i = self.commands.current+1, self.commands:size() do
-		local command = self.commands.items[i]
-		if command and command[1] == waldo and command[2] == CMD_JUMPOUT then
+	for i = self.commandsPos+1, #self.commands do
+		local command = self.commands[i]
+		if command and self.commandingWaldo == waldo and command == CMD_JUMPOUT then
 			self.commands.current = i
 			break
 		end
@@ -169,8 +190,8 @@ end
 
 function CommandQueue:loop( waldo )
 	if not self.loopPoints[ waldo ] then
-		self.loopPoints[ waldo ] = self.commands.current
+		self.loopPoints[ waldo ] = self.commandsPos
 	else
-		self.commands.current = self.loopPoints[ waldo ]
+		self.commandsPos = self.loopPoints[ waldo ]
 	end
 end

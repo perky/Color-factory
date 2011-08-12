@@ -6,8 +6,9 @@ Waldo = Node:subclass("Waldo")
 ROTATE_SPEED 	= 4
 MOVE_SPEED 		= 50
 
-function Waldo:initialize( x, y, name )
+function Waldo:initialize( x, y, name, id )
 	Node.initialize( self, x, y, name )
+	self.id			= id
 	self.arm	 		= Node:new( self.pos.x + 100, y or 0 )
 	self.name 		= name .. " head"
 	self.arm.name  = name .. " arm"
@@ -54,7 +55,7 @@ function Waldo:update( dt )
 			self.isMoving = false
 			self.moveCount = 0
 			self:moveTo( self.targetPos2 )
-			Commands:runCommand()
+			commandQueue[self.id]:runCommand()
 		end
 	end
 	
@@ -67,7 +68,7 @@ function Waldo:update( dt )
 			self.moveCount = 0
 			self.arm.pos = self.targetPos
 			self.arm:snapAllToGrid()
-			Commands:runCommand()
+			commandQueue[self.id]:runCommand()
 		end
 	end
 
@@ -87,7 +88,7 @@ function Waldo:update( dt )
 			self.rotateCount = 0
 			-- Move to the precalculated position to ensure we stay on grid.
 			self:finishedRotating()
-			Commands:runCommand()
+			commandQueue[self.id]:runCommand()
 		end
 	end
 end
