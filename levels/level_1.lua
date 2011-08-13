@@ -14,7 +14,7 @@ removeWaldo( WALDO_BLUE )
 
 addItem( Input, 2, 5, PAINT_RED, PAINT_GREEN, PAINT_YELLOW, PAINT_YELLOW )
 addItem( Output, 10, 5, PAINT_RED )
-addItem( Output, 10, 4, PAINT_YELLOW )
+addItem( Output, 10, 4, PAINT_YELLOW, PAINT_YELLOW, PAINT_RED, PAINT_GREEN )
 addItem( Sensor, 1, 1, DETECTS_COLOR, PAINT_RED )
 addItem( Conveyor, 2, 1, CONVEYOR_HORIZONTAL )
 --addItem( Conveyor, 2, 2, CONVEYOR_HORIZONTAL )
