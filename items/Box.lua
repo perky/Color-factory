@@ -1,8 +1,8 @@
-
-Box = class( 'Box', Paint )
+require "items.Paint"
+Box = Paint:subclass( "Box" )
 
 Box.slotPosition = {}
-Box.slotPosition[1] = { x = -10, y = -10 }
+Box.slotPosition[1]  = { x = -10, y = -10 }
 Box.slotPosition[2]  = { x = 10, y = -10 }
 Box.slotPosition[3]  = { x = -10, y = 10 }
 Box.slotPosition[4]  = { x = 10, y = 10 }

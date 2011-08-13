@@ -3,7 +3,6 @@ Input = InputOutput:subclass( "Input" )
 
 function Input:initialize( ... )
 	InputOutput.initialize( self, ... )
-	self.ioType = IO_IN
 	self.slots = {
 		PAINT_RED,
 		PAINT_RED,
@@ -36,11 +35,8 @@ function Input:generateArcs()
 end
 
 function Input:setup( x, y, slot1, slot2, slot3, slot4 )
-	self:setGridPos( x, y )
-	self.slots[1] = slot1
-	self.slots[2] = slot2
-	self.slots[3] = slot3
-	self.slots[4] = slot4
+	InputOutput.setup( self, x, y, slot1, slot2, slot3, slot4 )
+	
 	self:generateInputStack()
 	for i = 1, 4 do self.arcs[i]:setPosition( self.pos.x, self.pos.y ) end
 end
@@ -98,6 +94,7 @@ function Input:draw()
 			lg.circle( 'fill', self.pos.x - 30 - ((i-1)*10), self.pos.y, 4 )
 		end
 	end
+	
 	-- Draw the input circle.
 	lg.setColor( 255,255,255,255 )
 	lg.draw( self.image, self.pos.x -25, self.pos.y -25 )

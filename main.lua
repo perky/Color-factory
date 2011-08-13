@@ -19,6 +19,7 @@ require "items.Unboxer"
 require "items.Mixer"
 require "items.Conveyor"
 require "items.Input"
+require "items.Output"
 
 TAU = 2 * math.pi
 

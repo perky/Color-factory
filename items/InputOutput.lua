@@ -5,25 +5,11 @@ InputOutput:include(Beholder)
 
 InputOutput.image = love.graphics.newImage('images/objects/inputoutput-object.png')
 
-IO_OUT = 0
-IO_IN	 = 1
-
-function InputOutput:initialize()
-	Node.initialize( self )
+function InputOutput:initialize( ... )
+	Node.initialize( self, ... )
+	self.slots 	= {}
 	self.static = true
-	self.ioColor = PAINT_RED
-	self:observe( 'fireOutputs', InputOutput.output, self )
 	table.insert( Objects, self )
-	self.outlist = { PAINT_YELLOW, PAINT_RED }
-	self.outlistCurrent = 1
-end
-
-function InputOutput:input()
-	if self.ioType == IO_OUT then return end
-	local newPaint = Paint:new( self.pos.x, self.pos.y )
-	
-	newPaint:setColor( self.outlist[self.outlistCurrent] )
-	self.outlistCurrent = (self.outlistCurrent % #self.outlist) + 1
 end
 
 function InputOutput:output()
@@ -34,20 +20,12 @@ function InputOutput:output()
 	end
 end
 
-function InputOutput:setup( x, y, ioType, detects, detectValue )
+function InputOutput:setup( x, y, slot1, slot2, slot3, slot4 )
 	self:setGridPos( x, y )
-	self.ioType 	= ioType
-	self.detects	= detects or DETECTS_COLOR
-	self.detectValue = detectValue or PAINT_RED
-	local arcConfig = {
-		x = self.pos.x,
-		y = self.pos.y,
-		innerRadius = 0,
-		outerRadius = 20,
-		segments = 100
-	}
-	self.arc1 = Arc.create( arcConfig )
-	self.arc2 = Arc.create( arcConfig )
+	self.slots[1] = slot1
+	self.slots[2] = slot2
+	self.slots[3] = slot3
+	self.slots[4] = slot4
 end
 
 function InputOutput:draw()
