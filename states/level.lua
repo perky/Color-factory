@@ -214,6 +214,13 @@ function level:loadLevelNumber( levelNumber )
 	else
 		Button.create( currentLevel.enabledButtons )
 	end
+	
+	self.cash = 0
+end
+
+function level:onOutputSuccesfull()
+	self.cash = self.cash + 10
+	print( "$" .. self.cash )
 end
 
 return level

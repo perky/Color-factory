@@ -21,11 +21,14 @@ function Output:setup( x, y, slot1, slot2, slot3, slot4 )
 end
 
 function Output:output()
-	
-	--local detectedObject = self:sense()
-	--if detectedObject then
-	--	detectedObject:destroy()
-	--end
+	if self.outputType == OUTPUT_PAINT then
+		local paint = self:checkForColor( self.slots[1] )
+		if paint then
+			paint:destroy()
+			stateLevel:onOutputSuccesfull()
+		end
+	elseif self.outputType == OUTPUT_BOX then
+	end
 end
 
 function Output:draw()

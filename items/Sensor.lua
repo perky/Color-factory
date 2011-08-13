@@ -28,6 +28,38 @@ function Sensor:onFireSensors()
 	end
 end
 
+function Sensor:getObjectAbove( classname )
+	for i, object in ipairs( Objects ) do
+		if object.class.name == classname and object:gridPos() == self:gridPos() then
+			return object
+		end
+	end
+end
+
+function Sensor:checkForColor( color )
+	local color = color or self.colorToDetect
+	local paint = self:getObjectAbove( "Paint" )
+	if paint and paint.paintColor == color then
+		return paint
+	end
+end
+
+function Sensor:checkForBox( boxTable )
+	local box = self:getObjectAbove( "Box" )
+	if box then
+		local box1 = table.copy( boxTable )
+		local box2 = table.copy( box.slots )
+	
+		table.sort( box1 )
+		table.sort( box2 )
+		for i = 1, #box1 do
+			if box1[i] ~= box2[i] then return false end
+		end
+	
+		return true
+	end
+end
+
 function Sensor:sense()
 	for i, object in ipairs( Objects ) do
 		if instanceOf( Paint, object ) and object:gridPos() == self:gridPos() then
@@ -45,10 +77,8 @@ end
 
 function Sensor:checkColor( object )
 	if object.paintColor == self.detectValue then
-		print('correct color')
 		return true
 	end
-	print('false color')
 end
 
 function Sensor:checkQuantity( object )
