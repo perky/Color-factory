@@ -74,7 +74,6 @@ end
 function CommandQueue:draw( x, y )
 	love.graphics.setColor( 255, 255, 255 )
 	love.graphics.setColor( waldos[self.commandingWaldo].color )
-	love.graphics.print( self.commandsPos, 10, y+200 )
 	-- Draw commands.
 	for k, command in ipairs( self.commands ) do
 		love.graphics.draw( self.commandImages[command], 450+(44*k)-((self.commandsPos-1)*44), y, 0, 0.65 )
