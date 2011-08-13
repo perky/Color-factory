@@ -7,7 +7,7 @@ DETECTS_QUANTITY = 1
 
 function Sensor:initialize()
 	Node.initialize( self )
-	self.static  		= true
+	self.static  		= false
 	self.detects 		= DETECTS_COLOR
 	self.detectValue  = PAINT_RED
 	self:observe( 'fireSensors', Sensor.onFireSensors, self )

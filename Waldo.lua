@@ -20,6 +20,7 @@ function Waldo:initialize( x, y, name, id )
 	self.horizontal	= false
 	self.vertical		= false
 	self.disabled		= false
+	self.z				= 999
 	table.insert( Objects, self )
 end
 
@@ -55,7 +56,6 @@ function Waldo:update( dt )
 			self.isMoving = false
 			self.moveCount = 0
 			self:moveTo( self.targetPos2 )
-			commandQueue[self.id]:runCommand()
 		end
 	end
 	
@@ -68,7 +68,6 @@ function Waldo:update( dt )
 			self.moveCount = 0
 			self.arm.pos = self.targetPos
 			self.arm:snapAllToGrid()
-			commandQueue[self.id]:runCommand()
 		end
 	end
 
@@ -88,13 +87,12 @@ function Waldo:update( dt )
 			self.rotateCount = 0
 			-- Move to the precalculated position to ensure we stay on grid.
 			self:finishedRotating()
-			commandQueue[self.id]:runCommand()
 		end
 	end
 end
 
 function Waldo:tick()
-	if self.disabled then return end
+	if true then return end
 	if self.isMoving then
 		self.isMoving = false
 	end

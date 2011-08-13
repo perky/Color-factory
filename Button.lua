@@ -1,5 +1,25 @@
 Button = class( "Button" )
 
+function Button.create( list )
+	-- Create buttons.
+	commandButtons = {}
+	local n = 0
+	for i = 0, #CommandQueue.commandImages do
+		if CommandQueue.commandImages[i] and Button.findInList( list, i ) then
+			local button = Button:new( CommandQueue.commandImages[i], 15+n*34, 12, i )
+			table.insert(commandButtons, button)
+			n = n + 1
+		end
+	end
+end
+
+function Button.findInList( list, command )
+	if not list then return true end
+	for k, v in pairs( list ) do
+		if v == command then return true end
+	end
+end
+
 function Button:initialize( image, x, y, id )
 	self.pos = vector( x, y )
 	self.image = image

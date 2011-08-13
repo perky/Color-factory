@@ -7,6 +7,7 @@ Node.dragging = false
 
 function Node:initialize( x, y )
 	self.pos 	= vector( x or 0, y or 0 )
+	self.z = 0
 	self.savedPos = self.pos
 	self.color 	= { 255, 255, 255, 255 }
 end
@@ -56,7 +57,7 @@ end
 
 function Node:mousepressed( x, y, key )
 	local mousePos = Node.pixelPosToGridPos( vector( love.mouse.getX(), love.mouse.getY() ) )
-	if not Node.dragging and self:pixelPos() == mousePos then
+	if not self.static and not Node.dragging and self:pixelPos() == mousePos then
 		self.isDragging = true
 		Node.dragging = true
 	end

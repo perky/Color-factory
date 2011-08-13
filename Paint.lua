@@ -20,6 +20,7 @@ function Paint:initialize(...)
 	Node.initialize( self, ... )
 	table.insert( Objects, self )
 	self.moveCount = 0
+	self.z = 2
 end
 
 function Paint:update( dt )

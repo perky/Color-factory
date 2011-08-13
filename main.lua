@@ -37,10 +37,10 @@ function love.load()
 	
 	Objects 			= {}
 	commandQueue 	= {}
-	commandQueue[ WALDO_GREEN ] = CommandQueue:new( WALDO_GREEN )
 	commandQueue[ WALDO_RED ]	 = CommandQueue:new( WALDO_RED )
+	commandQueue[ WALDO_GREEN ] = CommandQueue:new( WALDO_GREEN )
 	
-	currentWaldo = WALDO_GREEN
+	currentWaldo = WALDO_RED
 	waldos		 = {}
 	
 	waldos[WALDO_BLUE] 	= Waldo:new( 0, 0, "Blue Waldo", WALDO_BLUE )
@@ -50,20 +50,10 @@ function love.load()
 	waldos[WALDO_RED] 	= Waldo:new( 0, 0, "Red Waldo", WALDO_RED )
 	waldos[WALDO_RED]:setColor( 255, 55, 55 )
 	
-	Timer.addPeriodic( 1, nextTick )
+	dtTimer = 0
+	waitingQueue = {}
 	
 	loadLevel( 1 )
-	
-	-- Create buttons.
-	commandButtons = {}
-	local n = 0
-	for i = 0, 13 do
-		if CommandQueue.commandImages[i] then
-			local button = Button:new( CommandQueue.commandImages[i], 15+n*34, 12, i )
-			table.insert(commandButtons, button)
-			n = n + 1
-		end
-	end
 end
 
 function nextTick()
@@ -71,7 +61,7 @@ function nextTick()
 end
 
 function setupWaldo( waldoColor, gridX, gridY, length, direction )
-	waldos[waldoColor]:setup( gridX, gridY, length, direction )
+	waldos[waldoColor]:setup( gridX, gridY+2, length, direction )
 	waldos[waldoColor].disabled = false
 end
 
@@ -81,19 +71,19 @@ end
 
 function addItem( className, gridX, gridY, ... )
 	item = className:new()
-	item:setup( gridX, gridY, ... )
+	item:setup( gridX, gridY+2, ... )
 end
 
 function loadLevel( levelNumber )
-	commandQueue[currentWaldo]:stop()
 	clearPaint()
 	
 	loadedLevel = loadfile('levels/level_' .. levelNumber .. '.lua')
 	currentLevel = loadedLevel()
+	Button.create( currentLevel.enabledButtons )
 end
 
 function resetLevel()
-	commandQueue[currentWaldo]:stop()
+	for k,v in pairs( commandQueue ) do v:stop() end
 	clearPaint()
 	
 	for k, v in ipairs( Objects ) do
@@ -116,6 +106,13 @@ function love.update( dt )
 		v:update( dt )
 	end
 	Timer.update( dt )
+	
+	dtTimer = dtTimer + dt
+	if dtTimer >= 1 then
+		dtTimer = 0
+		commandQueue[WALDO_RED]:runCommand()
+		commandQueue[WALDO_GREEN]:runCommand()
+	end
 end
 
 function love.draw()
@@ -131,16 +128,15 @@ function love.draw()
 	love.graphics.setLine( 1, 'smooth' )
 	
 	-- Draw items.
-	for i = #Objects, 1, -1 do
-		Objects[i]:draw()
-	end
+	table.sort( Objects, function(a,b) return a.z < b.z end)
+	for k, v in ipairs( Objects ) do v:draw() end
 	
 	-- Draw header image.
 	love.graphics.setColor( 255, 255, 255, 255 )
 	love.graphics.draw( header_image, 0, 0 )
 	
 	-- Draw commands.
-	for k, v in pairs( commandQueue ) do v:draw( 0, k*50 ) end
+	for k, v in pairs( commandQueue ) do v:draw( 0, (k*40)+7 ) end
 	
 	-- Draw currently selected waldo color.
 	love.graphics.setColor( waldos[currentWaldo].color )
@@ -150,6 +146,9 @@ function love.draw()
 	for k, v in ipairs( commandButtons ) do
 		v:draw( )
 	end
+	
+	love.graphics.setColor( 255,255,255,50 )
+	love.graphics.rectangle( 'fill', 512-25, 40, 50, 87 )
 end
 
 function switchWaldo()
