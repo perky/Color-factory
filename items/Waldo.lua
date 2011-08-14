@@ -50,7 +50,6 @@ function Waldo:update( dt )
 	Node.update( self, dt )
 	
 	if self.isMoving then
-		print(dt)
 		if dt < 0.2 then
 			local dVector = ( self.targetPos2 - self.pos ):normalized() * TILE_SIZE * dt
 			self:moveBy( dVector )
@@ -209,7 +208,7 @@ function Waldo:extend()
 end
 
 function Waldo:moveHorizontal()
-	if not self.vertical then
+	if true then
 		self.isMoving = true
 		if self.horizontal then
 			self.targetPos2 = ( self:gridPos() - vector( -1, 0 ) ) * TILE_SIZE
@@ -222,7 +221,7 @@ function Waldo:moveHorizontal()
 end
 
 function Waldo:moveVertical()
-	if not self.horizontal then
+	if true then
 		self.isMoving = true
 		if self.vertical then
 			self.targetPos2 = ( self:gridPos() - vector( 0, -1 ) ) * TILE_SIZE
