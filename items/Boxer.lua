@@ -8,7 +8,7 @@ function Boxer:initialize()
 	self.output:setGridPos( 0, 1 )
 	self:addChild( self.output )
 	self.box 	= nil
-	self.static = true
+	self.static = false
 end
 
 function Boxer:setup( x, y )
@@ -51,7 +51,9 @@ function Boxer:checkForBox()
 end
 
 function Boxer:draw()
-	love.graphics.setColor( 255, 255, 255 )
-	love.graphics.rectangle( 'line', self.pos.x - 20, self.pos.y - 20, 40, 40 )
-	love.graphics.rectangle( 'line', self.output.pos.x - 20, self.output.pos.y - 20, 40, 40 )
+	local lg = love.graphics
+	lg.setColor( 255, 255, 255 )
+	lg.setLine( 1 )
+	lg.rectangle( 'line', self.pos.x - 20, self.pos.y - 20, 40, 40 )
+	lg.rectangle( 'line', self.output.pos.x - 20, self.output.pos.y - 20, 40, 40 )
 end

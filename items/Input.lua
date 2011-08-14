@@ -11,6 +11,7 @@ function Input:initialize( ... )
 	}
 	self:generateArcs()
 	self:observe( 'fireInputs', Input.input, self )
+	self:observe( 'resetInputs', Input.generateInputStack, self )
 	self.inputCount = 0
 end
 

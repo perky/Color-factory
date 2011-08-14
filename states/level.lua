@@ -4,9 +4,7 @@ function level:init()
 	level.header_image = love.graphics.newImage('images/header.png')
 end
 
-function level:enter( previous, level_num )
-	level_song		= love.audio.newSource( 'sound/level_song.mp3', 'stream' )
-	
+function level:enter( previous, levelData )
 	Objects 			= {}
 	commandQueue 	= {}
 	commandQueue[ WALDO_RED ]	 = CommandQueue:new( WALDO_RED )
@@ -15,8 +13,8 @@ function level:enter( previous, level_num )
 	currentWaldo = WALDO_RED
 	waldos		 = {}
 	
-	waldos[WALDO_BLUE] 	= Waldo:new( 0, 0, "Blue Waldo", WALDO_BLUE )
-	waldos[WALDO_BLUE]:setColor( 0, 150, 255 )
+	--waldos[WALDO_BLUE] 	= Waldo:new( 0, 0, "Blue Waldo", WALDO_BLUE )
+	--waldos[WALDO_BLUE]:setColor( 0, 150, 255 )
 	waldos[WALDO_GREEN] 	= Waldo:new( 0, 0, "Green Waldo", WALDO_GREEN )
 	waldos[WALDO_GREEN]:setColor( 55, 255, 55 )
 	waldos[WALDO_RED] 	= Waldo:new( 0, 0, "Red Waldo", WALDO_RED )
@@ -25,12 +23,12 @@ function level:enter( previous, level_num )
 	dtTimer = 0
 	waitingQueue = {}
 	
-	self:loadLevelNumber( level_num or 1 )
+	--self:loadLevelNumber(  1 )
+	self:loadLevel( levelData )
 	level_song:setLooping( false )
 	
 	self.fade = { a = 255 }
 	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
-	
 end
 
 function level:leave()
@@ -39,6 +37,7 @@ function level:leave()
 	waldos = nil
 	waitingQueue = nil
 	currentLevel = nil
+	collectgarbage()
 end
 
 function level:update( dt )
@@ -114,15 +113,20 @@ end
 function addItem( className, gridX, gridY, ... )
 	item = className:new()
 	item:setup( gridX, gridY+2, ... )
+	return item
 end
 
 function resetLevel()
+	-- Stop all command queues.
 	for k,v in pairs( commandQueue ) do v:stop() end
-	clearPaint()
-	
+	-- Reload all objects to their saved position.
 	for k, v in ipairs( Objects ) do
 		v:loadPos()
 	end
+	
+	clearPaint()
+	waitingQueue = {}
+	Beholder.trigger("resetInputs")
 end
 
 function clearPaint()
@@ -201,14 +205,18 @@ function level:keypressed( key, unicode )
 		commandQueue[currentWaldo]:next()
 	elseif key == 'x' then
 		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_JUMPOUT )
+	elseif key == 'escape' then
+		Gamestate.switch( stateMenu )
 	end
 end
 
 function level:loadLevelNumber( levelNumber )
 	clearPaint()
 	
-	local loadedLevel = loadfile(LEVEL_PATH .. 'level_' .. levelNumber .. '.lua')
-	currentLevel = loadedLevel()
+	local levelData = loadfile(LEVEL_PATH .. 'level_' .. levelNumber .. '.lua')
+	currentLevel = levelData()
+	currentLevel.load()
+	
 	if currentLevel.enableAllButtons then
 		Button.create()
 	else
@@ -218,7 +226,17 @@ function level:loadLevelNumber( levelNumber )
 	self.cash = 0
 end
 
-function level:onOutputSuccesfull()
+function level:loadLevel( levelData )
+	self.cash = 0
+	levelData.load()
+	if levelData.enableAllButtons then
+		Button.create()
+	else
+		Button.create( levelData.enabledButtons )
+	end
+end
+
+function level:onOutputSuccessfull()
 	self.cash = self.cash + 10
 	print( "$" .. self.cash )
 end

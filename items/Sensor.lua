@@ -56,7 +56,7 @@ function Sensor:checkForBox( boxTable )
 			if box1[i] ~= box2[i] then return false end
 		end
 	
-		return true
+		return box
 	end
 end
 

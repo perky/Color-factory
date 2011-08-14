@@ -126,6 +126,14 @@ function Node:setGridPosWithVector( vector )
 	self.pos = vector * TILE_SIZE
 end
 
+function Node:setPos( x, y )
+	if x == "number" then
+		self.pos = vector( x, y )
+	else
+		self.pos = x
+	end
+end
+
 function Node:setGridPos( x, y )
 	self:moveTo( vector( x * TILE_SIZE, y * TILE_SIZE ) )
 end

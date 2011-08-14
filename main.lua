@@ -42,19 +42,19 @@ stateLevel 	= require "states.level"
 
 function love.load()
 	math.randomseed( os.time() )
+	-- setup screen mode.
 	love.graphics.setMode( 1024, 768, false, false, 4 )
 	screenOffset = { x = 0, y = 0 }
 	isFullscreen = false
-	
-	--TLfres.setScreen( {w=1680,h=1050,full=true}, 1680, 1050, false, false )
 	love.graphics.setBackgroundColor( 34, 34, 34 )
 	
 	splash_song 	= love.audio.newSource( 'sound/intro.ogg', 'static' )
 	menu_song 		= love.audio.newSource( 'sound/menu_loop.ogg', 'static' )
+	level_song		= love.audio.newSource( 'sound/level_song.mp3', 'stream' )
 	love.audio.setVolume( 0.45 )
 	
 	Gamestate.registerEvents()
-	Gamestate.switch( stateLevel )
+	Gamestate.switch( stateMenu )
 end
 
 local _mouseGetX = love.mouse.getX

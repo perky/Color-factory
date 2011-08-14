@@ -25,9 +25,14 @@ function Output:output()
 		local paint = self:checkForColor( self.slots[1] )
 		if paint then
 			paint:destroy()
-			stateLevel:onOutputSuccesfull()
+			stateLevel:onOutputSuccessfull()
 		end
 	elseif self.outputType == OUTPUT_BOX then
+		local box = self:checkForBox( self.slots )
+		if box then
+			box:destroy()
+			stateLevel:onOutputSuccessfull()
+		end
 	end
 end
 

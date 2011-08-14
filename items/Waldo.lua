@@ -24,6 +24,7 @@ end
 
 function Waldo:setup( x, y, length, direction )
 	self:setGridPos( x, y )
+	self.basePos = self.pos:clone()
 	self.extended = true
 	self:drop()
 	if direction == LEFT then
@@ -37,8 +38,14 @@ function Waldo:setup( x, y, length, direction )
 	end
 end
 
+function Waldo:savePos( ... )
+	Node.savePos( self, ... )
+	self.basePos = self.pos:clone()
+end
+
 function Waldo:loadPos( ... )
 	Node.loadPos( self, ... )
+	self.basePos		= self.pos:clone()
 	self.extended 		= true
 	self.horizontal 	= false
 	self.vertical 		= false
@@ -111,19 +118,26 @@ end
 
 function Waldo:draw()
 	if self.disabled then return end
-	love.graphics.setLine( 1, 'smooth' )
-	love.graphics.setColor( self.color )
-	love.graphics.line( self.pos.x, self.pos.y, self.arm.pos.x, self.arm.pos.y )
-	love.graphics.circle( 'fill', self.pos.x, self.pos.y, 10, 100 )
+	local lg = love.graphics
+	lg.setLine( 1, 'smooth' )
+	
+	-- Draw square base frame.
+	lg.setColor( self.color[1], self.color[2], self.color[3], 32 )
+	lg.rectangle( 'line', self.basePos.x - TILE_SIZE, self.basePos.y - TILE_SIZE, TILE_SIZE, TILE_SIZE )
+	
+	-- Draw base circle and arm line.
+	lg.setColor( self.color[1], self.color[2], self.color[3], 255 )
+	lg.line( self.pos.x, self.pos.y, self.arm.pos.x, self.arm.pos.y )
+	lg.circle( 'fill', self.pos.x, self.pos.y, 10, 100 )
 	
 	if	self.isGrabbing then 
-		love.graphics.setColor( self.color[1], self.color[2], self.color[3], 80 )
-		love.graphics.circle( 'fill', self.arm.pos.x, self.arm.pos.y, 20, 100 )
+		lg.setColor( self.color[1], self.color[2], self.color[3], 80 )
+		lg.circle( 'fill', self.arm.pos.x, self.arm.pos.y, 20, 100 )
 	end
-	love.graphics.setColor( self.color )
-	love.graphics.circle( 'line', self.arm.pos.x, self.arm.pos.y, 20, 100 )
+	lg.setColor( self.color )
+	lg.circle( 'line', self.arm.pos.x, self.arm.pos.y, 20, 100 )
 	
-	love.graphics.setColor( 255, 255, 255, 255 )
+	lg.setColor( 255, 255, 255, 255 )
 end
 
 function Waldo:grabDrop()
@@ -231,7 +245,3 @@ function Waldo:moveVertical()
 		self.vertical = not self.vertical
 	end
 end
-
-
-
-
