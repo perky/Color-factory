@@ -18,7 +18,7 @@ function MenuButton:update( dt )
 	local mx, my = love.mouse.getX(), love.mouse.getY()
 	self.state = BUTTON_MOUSE_OFF
 	if mx > self.pos.x and mx < self.pos.x+self.w and my > self.pos.y and my < self.pos.y+self.h then
-		if love.mouse.isDown() then
+		if love.mouse.isDown("l") then
 			self.state = BUTTON_MOUSE_PRESSED
 		else
 			self.state = BUTTON_MOUSE_OVER
