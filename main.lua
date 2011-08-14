@@ -23,7 +23,7 @@ require "items.Output"
 
 TAU = 2 * math.pi
 
-LEVEL_PATH = "/users/lukeperkin/Projects/Programming/ColorFactory/levels/"
+LEVEL_PATH = "levels/"
 GAME_SPEED = 2
 TILE_SIZE = 64
 
