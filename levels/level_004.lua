@@ -7,6 +7,7 @@ level.enableAllButtons = false
 level.enabledButtons = {
 	CMD_ROTATE_CW, CMD_ROTATE_CCW, CMD_GRABDROP, CMD_EXTEND, CMD_HORIZONTAL, CMD_VERTICAL, CMD_WAIT, CMD_LOOPIN, CMD_LOOPOUT
 }
+level.tutorial = "mixerandloop.png"
 
 function level.load()
 	setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )

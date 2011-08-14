@@ -6,6 +6,7 @@ function level:init()
 	level.play_image	 = lg.newImage('images/play.png')
 	level.pause_image	 = lg.newImage('images/pause.png')
 	level.stop_image	 = lg.newImage('images/stop.png')
+	level.togglewaldo_image = lg.newImage('images/togglewaldo.png')
 end
 
 function level:enter( previous, levelData )
@@ -31,6 +32,7 @@ function level:enter( previous, levelData )
 	self:loadLevel( levelData )
 	
 	-- create playback buttons.
+	Button:new( level.togglewaldo_image, 870, 12, {255,255,255}, switchWaldo )
 	Button:new( level.stop_image, 900, 12, {255,255,255}, Beholder.trigger, 'stop' )
 	Button:new( level.pause_image, 930, 12, {255,255,255}, Beholder.trigger, 'pause' )
 	Button:new( level.play_image, 960, 12, {255,255,255}, Beholder.trigger, 'play' )
@@ -98,6 +100,14 @@ function level:draw()
 	lg.setColor( 255,255,255,50 )
 	lg.rectangle( 'fill', 512-25, 40, 50, 87 )
 	
+	-- draw tutorial.
+	if self.tutorial then
+		lg.setColor( 255, 255, 255, 255 )
+		lg.rectangle( 'fill', 0, 184-25, 1024, 400+(25*2) )
+		lg.setColor( 255, 255, 255, 255 )
+		lg.draw( self.tutorial, 0, 184 )
+	end
+	
 	-- draw fade in.
 	lg.setColor( 255, 255, 255, self.fade.a )
 	lg.rectangle( 'fill', 0, 0, 1024, 768 )
@@ -153,6 +163,8 @@ function level:mousepressed( x, y, key )
 	for k, v in ipairs( Objects ) do
 		v:mousepressed( x, y, key )
 	end
+	
+	if self.tutorial then self.tutorial = nil end
 	
 	Button:apply('onMousePressed', x, y, key )
 end
@@ -233,6 +245,10 @@ function level:loadLevel( levelData )
 		Button.createCommands()
 	else
 		Button.createCommands( levelData.enabledButtons )
+	end
+	
+	if levelData.tutorial then
+		self.tutorial = love.graphics.newImage("images/tutorials/"..levelData.tutorial)
 	end
 end
 

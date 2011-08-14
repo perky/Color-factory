@@ -7,6 +7,7 @@ level.enableAllButtons = false
 level.enabledButtons = {
 	CMD_ROTATE_CW, CMD_ROTATE_CCW, CMD_GRABDROP, CMD_EXTEND, CMD_INPUT, CMD_OUTPUT
 }
+level.tutorial = "boxer.png"
 
 function level.load()
 	setupWaldo( WALDO_GREEN, 1, 1, 2, RIGHT )
