@@ -45,7 +45,7 @@ function level:leave()
 	waldos = nil
 	waitingQueue = nil
 	currentLevel = nil
-	collectgarbage()
+	Button.instances = {}
 end
 
 function level:update( dt )
