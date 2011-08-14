@@ -33,7 +33,7 @@ function level:enter( previous, levelData )
 	
 	-- create playback buttons.
 	Button:new( level.togglewaldo_image, 870, 12, {255,255,255}, switchWaldo )
-	Button:new( level.stop_image, 900, 12, {255,255,255}, Beholder.trigger, 'stop' )
+	Button:new( level.stop_image, 900, 12, {255,255,255}, resetLevel )
 	Button:new( level.pause_image, 930, 12, {255,255,255}, Beholder.trigger, 'pause' )
 	Button:new( level.play_image, 960, 12, {255,255,255}, Beholder.trigger, 'play' )
 	
@@ -186,17 +186,17 @@ function level:keypressed( key, unicode )
 	elseif key == 'e' then
 		commandQueue[currentWaldo]:addCommand( CMD_ROTATE_CW )
 	elseif key == 'r' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_EXTEND )
+		commandQueue[currentWaldo]:addCommand( CMD_EXTEND )
 	elseif key == 'i' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_INPUT )
+		--commandQueue[currentWaldo]:addCommand( CMD_INPUT )
 	elseif key == 'o' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_OUTPUT )
+		--commandQueue[currentWaldo]:addCommand( CMD_OUTPUT )
 	elseif key == 'a' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_SENSE )
+		commandQueue[currentWaldo]:addCommand( CMD_SENSE )
 	elseif key == 's' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_JUMP )
+		commandQueue[currentWaldo]:addCommand( CMD_JUMP )
 	elseif key == 'd' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_LOOP )
+		commandQueue[currentWaldo]:addCommand( CMD_LOOPIN )
 	elseif key == ' ' then
 		for k, v in pairs( commandQueue ) do v:toggleRun() end
 	elseif key == '.' then
@@ -208,15 +208,15 @@ function level:keypressed( key, unicode )
 	elseif key == 'backspace' then
 		commandQueue[currentWaldo]:removeCommand()
 	elseif key == 't' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_VERTICAL )
+		commandQueue[currentWaldo]:addCommand( CMD_VERTICAL )
 	elseif key == 'f' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_HORIZONTAL )
+		commandQueue[currentWaldo]:addCommand( CMD_HORIZONTAL )
 	elseif key == 'left' then
 		commandQueue[currentWaldo]:prev()
 	elseif key == 'right' then
 		commandQueue[currentWaldo]:next()
 	elseif key == 'x' then
-		commandQueue[currentWaldo]:addCommand( currentWaldo, CMD_JUMPOUT )
+		commandQueue[currentWaldo]:addCommand( CMD_JUMPOUT )
 	elseif key == 'escape' then
 		Gamestate.switch( stateMenu )
 	end

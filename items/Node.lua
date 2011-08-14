@@ -1,5 +1,6 @@
 
-Node = class("Node"):include(Branchy)
+Node = class("Node")
+Node:include(Branchy)
 Node:include(Callbacks)
 Node:after( 'setup', 'savePos' )
 
@@ -24,13 +25,8 @@ function Node:setZ( z )
 	Node.zSlot = Node.zSlot - 1
 end
 
-function Node:postInitialize( x, y )
-	--self:snapToGrid()
-end
-
 function Node:setup( x, y )
 	self:setGridPos( x, y )
-	self:savePos()
 end
 
 function Node:destroy()
