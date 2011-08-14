@@ -16,6 +16,7 @@ end
 
 function MenuButton:update( dt )
 	local mx, my = love.mouse.getX(), love.mouse.getY()
+	self.state = BUTTON_MOUSE_OFF
 	if mx > self.pos.x and mx < self.pos.x+self.w and my > self.pos.y and my < self.pos.y+self.h then
 		if love.mouse.isDown() then
 			self.state = BUTTON_MOUSE_PRESSED
@@ -33,7 +34,11 @@ end
 
 function MenuButton:draw()
 	local lg = love.graphics
-	lg.setColor( 210, 210, 210 )
+	if self.state == BUTTON_MOUSE_OVER then
+		lg.setColor( 210, 255, 210 )
+	else
+		lg.setColor( 210, 210, 210 )
+	end
 	lg.rectangle( 'fill', self.pos.x, self.pos.y, self.w, self.h )
 	
 	lg.setColor( 0, 0, 0 )
