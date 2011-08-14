@@ -360,6 +360,7 @@ function tween.stopAll()
 end
 
 function tween.update(dt)
+	local dt = math.abs(dt)
   assert(type(dt) == 'number' and dt > 0, "dt must be a positive number")
   local expired = {}
   for _,t in pairs(tweens) do
