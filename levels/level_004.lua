@@ -16,6 +16,7 @@ function level.load()
 	addItem( Input, 2, 5, PAINT_RED, PAINT_YELLOW )
 	addItem( Output, 10, 4, PAINT_ORANGE )
 	addItem( Mixer, 8, 3 )
+	addItem( Conveyor, 3, 1, CONVEYOR_HORIZONTAL )
 end
 
 return level
