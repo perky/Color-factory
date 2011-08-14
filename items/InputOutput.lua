@@ -9,15 +9,8 @@ function InputOutput:initialize( ... )
 	Node.initialize( self, ... )
 	self.slots 	= {}
 	self.static = true
+	self.z = -1
 	table.insert( Objects, self )
-end
-
-function InputOutput:output()
-	if self.ioType == IO_IN then return end
-	local detectedObject = self:sense()
-	if detectedObject then
-		detectedObject:destroy()
-	end
 end
 
 function InputOutput:setup( x, y, slot1, slot2, slot3, slot4 )

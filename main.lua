@@ -24,7 +24,7 @@ require "items.Output"
 TAU = 2 * math.pi
 
 LEVEL_PATH = "/users/lukeperkin/Projects/Programming/ColorFactory/levels/"
-GAME_SPEED = 1
+GAME_SPEED = 2
 TILE_SIZE = 64
 
 WALDO_RED 	= 1
@@ -50,11 +50,12 @@ function love.load()
 	
 	splash_song 	= love.audio.newSource( 'sound/intro.ogg', 'static' )
 	menu_song 		= love.audio.newSource( 'sound/menu_loop.ogg', 'static' )
-	level_song		= love.audio.newSource( 'sound/level_song.mp3', 'stream' )
+	flash_sound		= love.audio.newSource( 'sound/flash.ogg', 'static' )
+	menu_song:setLooping( true )
 	love.audio.setVolume( 0.45 )
 	
 	Gamestate.registerEvents()
-	Gamestate.switch( stateMenu )
+	Gamestate.switch( stateSplash )
 end
 
 local _mouseGetX = love.mouse.getX
@@ -67,8 +68,15 @@ function love.mouse.getY()
 end
 
 function love.keypressed( key, unicode )
-	if key == 'l' then
+	if key == 'f12' then
 		toggleFullscreen()
+	elseif key == 'm' then
+		local volume = love.audio.getVolume( )
+		if volume > 0 then
+			love.audio.setVolume(0)
+		else
+			love.audio.setVolume(0.45)
+		end
 	end
 end
 

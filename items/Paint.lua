@@ -1,6 +1,7 @@
 
 Paint = Node:subclass("Paint")
 
+PAINT_WHITE		= 0
 PAINT_RED 		= 1
 PAINT_YELLOW 	= 2
 PAINT_ORANGE	= 3
@@ -9,6 +10,7 @@ PAINT_PURPLE	= 5
 PAINT_GREEN		= 6
 
 Paint.colors	= {}
+Paint.colors[PAINT_WHITE]		= { 255, 255, 255 }
 Paint.colors[PAINT_RED]		= { 255, 0, 0 }
 Paint.colors[PAINT_YELLOW]	= { 255, 255, 0 }
 Paint.colors[PAINT_BLUE]	= { 0, 0, 255 }
@@ -20,7 +22,7 @@ function Paint:initialize(...)
 	Node.initialize( self, ... )
 	table.insert( Objects, self )
 	self.moveCount = 0
-	self.z = 2
+	self:setZ( 999 )
 end
 
 function Paint:update( dt )

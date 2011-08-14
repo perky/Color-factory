@@ -4,12 +4,24 @@ Node:include(Callbacks)
 Node:after( 'setup', 'savePos' )
 
 Node.dragging = false
+Node.zSlot = 0
 
 function Node:initialize( x, y )
 	self.pos 	= vector( x or 0, y or 0 )
 	self.z = 0
 	self.savedPos = self.pos
 	self.color 	= { 255, 255, 255, 255 }
+	self:findZSlot()
+end
+
+function Node:findZSlot()
+	self.z = Node.zSlot
+	Node.zSlot = Node.zSlot + 1
+end
+
+function Node:setZ( z )
+	self.z = z
+	Node.zSlot = Node.zSlot - 1
 end
 
 function Node:postInitialize( x, y )
@@ -42,6 +54,7 @@ function Node:onWaldoGrab() end
 function Node:tick() end
 
 function Node:savePos()
+	print(self:gridPos()-vector(0,2))
 	self.savedPos = self.pos
 	for k, child in ipairs( self.children ) do
 		child:savePos()
@@ -52,6 +65,22 @@ function Node:loadPos()
 	self.pos = self.savedPos
 	for k, child in ipairs( self.children ) do
 		child:loadPos()
+	end
+end
+
+function Node:getObjectAbove( classname )
+	for i, object in ipairs( Objects ) do
+		if object and object.class.name == classname and object:gridPos() == self:gridPos() and object ~= self then
+			return object
+		end
+	end
+end
+
+function Node:getAnyObjectAbove( )
+	for i, object in ipairs( Objects ) do
+		if object and object:gridPos() == self:gridPos() and object ~= self then
+			return object
+		end
 	end
 end
 

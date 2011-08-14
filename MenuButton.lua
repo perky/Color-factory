@@ -41,6 +41,6 @@ function MenuButton:draw()
 	end
 	lg.rectangle( 'fill', self.pos.x, self.pos.y, self.w, self.h )
 	
-	lg.setColor( 0, 0, 0 )
+	lg.setColor( 0, 0, 0, 255 )
 	lg.print( self.title, self.pos.x+5, self.pos.y+4 )
 end

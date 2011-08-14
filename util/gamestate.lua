@@ -81,9 +81,11 @@ local _draw
 local function draw(...)
 	love.graphics.push()
 	love.graphics.translate( screenOffset.x, screenOffset.y )
+	love.graphics.setScissor( screenOffset.x, screenOffset.y, 1024, 768 )
 	if _draw then _draw(...) end
 	current:draw(...)
 	love.graphics.pop()
+	love.graphics.setScissor(  )
 end
 
 local _focus

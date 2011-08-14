@@ -18,7 +18,7 @@ function Waldo:initialize( x, y, name, id )
 	self.horizontal	= false
 	self.vertical		= false
 	self.disabled		= false
-	self.z				= 999
+	self:setZ( 1000 )
 	table.insert( Objects, self )
 end
 

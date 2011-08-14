@@ -1,13 +1,31 @@
 Button = class( "Button" )
+Button.instances = {}
 
-function Button.create( list )
+function Button:initialize( image, x, y, color, callback, ... )
+	self.pos = vector( x, y )
+	self.image = image
+	self.callback = callback
+	self.callbackArgs = {...}
+	self.color = color
+	table.insert( self.instances, self )
+end
+
+function Button:apply( method, ... )
+	for i,v in ipairs(Button.instances) do
+		v[method]( v, ... )
+	end
+end
+
+function Button.runCommand( id )
+	commandQueue[currentWaldo]:addCommand( id )
+end
+
+function Button.createCommands( list )
 	-- Create buttons.
-	commandButtons = {}
 	local n = 0
 	for i = 0, #CommandQueue.commandImages do
 		if CommandQueue.commandImages[i] and Button.findInList( list, i ) then
-			local button = Button:new( CommandQueue.commandImages[i], 15+n*34, 12, i )
-			table.insert(commandButtons, button)
+			local button = Button:new( CommandQueue.commandImages[i], 15+n*34, 12, nil, Button.runCommand, i )
 			n = n + 1
 		end
 	end
@@ -20,20 +38,15 @@ function Button.findInList( list, command )
 	end
 end
 
-function Button:initialize( image, x, y, id )
-	self.pos = vector( x, y )
-	self.image = image
-	self.id = id
-end
-
 function Button:onMousePressed( x, y, button )
 	if vector(self.pos.x+13,self.pos.y+13):distance( vector(x,y) ) < 13 then
-		commandQueue[currentWaldo]:addCommand( self.id )
+		self.callback( unpack(self.callbackArgs) )
 	end
 end
 
 function Button:draw()
-	love.graphics.setColor( waldos[currentWaldo].color )
+	local color = self.color or waldos[currentWaldo].color
+	love.graphics.setColor( color )
 	love.graphics.draw( self.image, self.pos.x, self.pos.y, 0, 0.5 )
 end
 

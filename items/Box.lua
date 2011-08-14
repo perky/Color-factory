@@ -2,10 +2,10 @@ require "items.Paint"
 Box = Paint:subclass( "Box" )
 
 Box.slotPosition = {}
-Box.slotPosition[1]  = { x = -10, y = -10 }
-Box.slotPosition[2]  = { x = 10, y = -10 }
-Box.slotPosition[3]  = { x = -10, y = 10 }
-Box.slotPosition[4]  = { x = 10, y = 10 }
+Box.slotPosition[1]  = { x = -7, y = -7 }
+Box.slotPosition[2]  = { x =  7, y = -7 }
+Box.slotPosition[3]  = { x = -7, y =  7 }
+Box.slotPosition[4]  = { x =  7, y =  7 }
 
 function Box:initialize( ... )
 	Paint.initialize( self, ... )
@@ -46,7 +46,7 @@ end
 function Box:draw()
 	local lg = love.graphics
 	lg.setColor( 255, 255, 255 )
-	lg.rectangle( 'fill', self.pos.x - 20, self.pos.y - 20, 40, 40)
+	lg.rectangle( 'fill', self.pos.x - 14, self.pos.y - 14, 28, 28)
 	lg.setColor( 0, 0, 0 )
 	
 	for i, paint in ipairs( self.slots ) do

@@ -13,11 +13,12 @@ CMD_WAIT			= 	6
 CMD_SENSE		=	7
 CMD_JUMP			=	8
 CMD_JUMPOUT		= 	9
-CMD_LOOP			= 10
-CMD_INPUT		= 11
-CMD_OUTPUT		= 12
-CMD_GRAB			= 13
-CMD_DROP			= 14
+CMD_LOOPIN		= 10
+CMD_LOOPOUT		= 11
+CMD_INPUT		= 12
+CMD_OUTPUT		= 13
+CMD_GRAB			= 14
+CMD_DROP			= 15
 
 
 STOPPED			= 0
@@ -31,9 +32,19 @@ function CommandQueue:initialize( waldoColor )
 	self.running = false
 	self.state = STOPPED
 	self.loopPoints = {}
-	self:observe('fireSensorTrue', CommandQueue.sensorJump, self)
+	self:observe('fireSensorTrue', CommandQueue.onSensorTrue, self)
 	self:observe('nextTick', CommandQueue.runCommand, self)
+	self:observe('stop', CommandQueue.stop, self)
+	self:observe('play', CommandQueue.play, self)
+	self:observe('pause', CommandQueue.pause, self)
 	self.commandingWaldo = waldoColor
+end
+
+function CommandQueue:onSensorTrue()
+	if self.awaitingSensorResponse then
+		print('sensor true')
+		self.sensorTrue = true
+	end
 end
 
 function CommandQueue.loadImages()
@@ -44,9 +55,10 @@ function CommandQueue.loadImages()
 	CommandQueue.commandImages[CMD_GRABDROP] = love.graphics.newImage( 'images/grabdrop.png' )
 	CommandQueue.commandImages[CMD_SENSE] = love.graphics.newImage( 'images/sense.png' )
 	CommandQueue.commandImages[CMD_JUMP] = love.graphics.newImage( 'images/jump.png' )
-	CommandQueue.commandImages[CMD_LOOP] = love.graphics.newImage( 'images/loop.png' )
-	CommandQueue.commandImages[CMD_INPUT] 			= love.graphics.newImage( 'images/input.png' )
-	CommandQueue.commandImages[CMD_OUTPUT] 		= love.graphics.newImage( 'images/output.png' )
+	CommandQueue.commandImages[CMD_LOOPIN] = love.graphics.newImage( 'images/loopin.png' )
+	CommandQueue.commandImages[CMD_LOOPOUT] = love.graphics.newImage( 'images/loopout.png' )
+	--CommandQueue.commandImages[CMD_INPUT] 			= love.graphics.newImage( 'images/input.png' )
+	--CommandQueue.commandImages[CMD_OUTPUT] 		= love.graphics.newImage( 'images/output.png' )
 	CommandQueue.commandImages[CMD_HORIZONTAL] 	= love.graphics.newImage( 'images/horizontal.png' )
 	CommandQueue.commandImages[CMD_VERTICAL] 		= love.graphics.newImage( 'images/vertical.png' )
 	CommandQueue.commandImages[CMD_JUMPOUT] 		= love.graphics.newImage( 'images/jumpout.png' )
@@ -94,6 +106,9 @@ function CommandQueue:toggleRun()
 end
 
 function CommandQueue:play()
+	if self.state == STOPPED then
+		self.commandsPos = 0
+	end
 	self.state = PLAYING
 end
 
@@ -133,6 +148,13 @@ function CommandQueue:runCommand()
 		if v == self then return end
 	end
 	
+	-- Jump if sensor returned true
+	if self.sensorTrue then
+		self.sensorTrue = false
+		self:sensorJump()
+	end
+	self.awaitingSensorResponse = false
+	
 	-- Move command pos on.
 	self:next()
 	
@@ -153,12 +175,15 @@ function CommandQueue:runCommand()
 	elseif command == CMD_EXTEND then
 		waldos[waldo]:extend()
 	elseif command == CMD_SENSE then
+		self.awaitingSensorResponse = true
 		Beholder.trigger('fireSensors')
 	elseif command == CMD_JUMP then
 		lastWaldo = waldo
 		self:jump( )
-	elseif command == CMD_LOOP then
-		self:loop( waldo )
+	elseif command == CMD_LOOPIN then
+		self:loopin()
+	elseif command == CMD_LOOPOUT then
+		self:loopout()
 	elseif command == CMD_INPUT then
 		Beholder.trigger('fireInputs')
 	elseif command == CMD_OUTPUT then
@@ -194,6 +219,14 @@ function CommandQueue:jump( )
 			break
 		end
 	end
+end
+
+function CommandQueue:loopin()
+	self.loopinPoint = self.commandsPos
+end
+
+function CommandQueue:loopout()
+	self.commandsPos = self.loopinPoint
 end
 
 function CommandQueue:loop( waldo )

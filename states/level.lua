@@ -1,10 +1,17 @@
 local level = Gamestate.new()
 
 function level:init()
-	level.header_image = love.graphics.newImage('images/header.png')
+	local lg = love.graphics
+	level.header_image = lg.newImage('images/header.png')
+	level.play_image	 = lg.newImage('images/play.png')
+	level.pause_image	 = lg.newImage('images/pause.png')
+	level.stop_image	 = lg.newImage('images/stop.png')
 end
 
 function level:enter( previous, levelData )
+	love.audio.stop()
+	flash_sound:play()
+	
 	Objects 			= {}
 	commandQueue 	= {}
 	commandQueue[ WALDO_RED ]	 = CommandQueue:new( WALDO_RED )
@@ -13,8 +20,6 @@ function level:enter( previous, levelData )
 	currentWaldo = WALDO_RED
 	waldos		 = {}
 	
-	--waldos[WALDO_BLUE] 	= Waldo:new( 0, 0, "Blue Waldo", WALDO_BLUE )
-	--waldos[WALDO_BLUE]:setColor( 0, 150, 255 )
 	waldos[WALDO_GREEN] 	= Waldo:new( 0, 0, "Green Waldo", WALDO_GREEN )
 	waldos[WALDO_GREEN]:setColor( 55, 255, 55 )
 	waldos[WALDO_RED] 	= Waldo:new( 0, 0, "Red Waldo", WALDO_RED )
@@ -23,9 +28,12 @@ function level:enter( previous, levelData )
 	dtTimer = 0
 	waitingQueue = {}
 	
-	--self:loadLevelNumber(  1 )
 	self:loadLevel( levelData )
-	level_song:setLooping( false )
+	
+	-- create playback buttons.
+	Button:new( level.stop_image, 900, 12, {255,255,255}, Beholder.trigger, 'stop' )
+	Button:new( level.pause_image, 930, 12, {255,255,255}, Beholder.trigger, 'pause' )
+	Button:new( level.play_image, 960, 12, {255,255,255}, Beholder.trigger, 'play' )
 	
 	self.fade = { a = 255 }
 	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
@@ -53,10 +61,6 @@ function level:update( dt )
 		dtTimer = 0
 		commandQueue[WALDO_RED]:runCommand()
 		commandQueue[WALDO_GREEN]:runCommand()
-	end
-	
-	if menu_song:isStopped() and level_song:isStopped() then
-		--level_song:play()
 	end
 end
 
@@ -89,9 +93,7 @@ function level:draw()
 	lg.setLine( 10, 'rough' )
 	lg.line( 0, 0, 1024, 0 )
 	
-	for k, v in ipairs( commandButtons ) do
-		v:draw( )
-	end
+	Button:apply('draw')
 	
 	lg.setColor( 255,255,255,50 )
 	lg.rectangle( 'fill', 512-25, 40, 50, 87 )
@@ -118,7 +120,8 @@ end
 
 function resetLevel()
 	-- Stop all command queues.
-	for k,v in pairs( commandQueue ) do v:stop() end
+	Beholder.trigger("stop")
+	Beholder.trigger("resetInputs")
 	-- Reload all objects to their saved position.
 	for k, v in ipairs( Objects ) do
 		v:loadPos()
@@ -126,7 +129,7 @@ function resetLevel()
 	
 	clearPaint()
 	waitingQueue = {}
-	Beholder.trigger("resetInputs")
+	
 end
 
 function clearPaint()
@@ -147,14 +150,11 @@ function switchWaldo()
 end
 
 function level:mousepressed( x, y, key )
-	
 	for k, v in ipairs( Objects ) do
 		v:mousepressed( x, y, key )
 	end
 	
-	for k, v in ipairs( commandButtons ) do
-		v:onMousePressed( x, y, key )
-	end
+	Button:apply('onMousePressed', x, y, key )
 end
 
 function level:mousereleased( x, y, key )
@@ -218,9 +218,9 @@ function level:loadLevelNumber( levelNumber )
 	currentLevel.load()
 	
 	if currentLevel.enableAllButtons then
-		Button.create()
+		Button.createCommands()
 	else
-		Button.create( currentLevel.enabledButtons )
+		Button.createCommands( currentLevel.enabledButtons )
 	end
 	
 	self.cash = 0
@@ -230,9 +230,9 @@ function level:loadLevel( levelData )
 	self.cash = 0
 	levelData.load()
 	if levelData.enableAllButtons then
-		Button.create()
+		Button.createCommands()
 	else
-		Button.create( levelData.enabledButtons )
+		Button.createCommands( levelData.enabledButtons )
 	end
 end
 

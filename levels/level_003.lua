@@ -9,8 +9,8 @@ level.enabledButtons = {
 }
 
 function level.load()
-	setupWaldo( WALDO_GREEN, 4, 5, 2, LEFT )
-	setupWaldo( WALDO_RED, 8, 5, 2, LEFT )
+	setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )
+	setupWaldo( WALDO_RED, 8, 7, 2, LEFT )
 
 	addItem( Input, 2, 5, PAINT_RED, PAINT_GREEN, PAINT_YELLOW, PAINT_YELLOW )
 	addItem( Output, 10, 4, PAINT_YELLOW, PAINT_YELLOW, PAINT_RED, PAINT_GREEN )

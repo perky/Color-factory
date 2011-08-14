@@ -1,5 +1,6 @@
 
 Mixer = Boxer:subclass('Mixer')
+Mixer.image = love.graphics.newImage( "images/objects/mixer-object.png" )
 
 function Mixer:initialize()
 	Boxer.initialize( self )
@@ -30,15 +31,18 @@ function Mixer:checkForPaint()
 end
 
 function Mixer:mix( paint )
-	if self.paint.paintColor == paint.paintColor then
+	local pc = self.paint.paintColor
+	if pc == paint.paintColor or pc == PAINT_GREEN or pc == PAINT_ORANGE or pc == PAINT_PURPLE then
 		return false
 	else
-		local mixedColor = self.paint.paintColor + paint.paintColor
-		if mixedColor > PAINT_GREEN or mixedColor == PAINT_RED or mixedColor == PAINT_YELLOW or mixedColor == PAINT_BLUE or paint.paintColor == PAINT_PURPLE then
-			return false
-		else
-			self.paint.paintColor = mixedColor
-			paint:destroy()
-		end
+		local mixedColor = pc + paint.paintColor
+		self.paint.paintColor = mixedColor
+		paint:destroy()
 	end
+end
+
+function Mixer:draw()
+	local lg = love.graphics
+	lg.setColor( 255, 255, 255, 255 )
+	lg.draw( self.image, self.pos.x, self.pos.y, 0, 1, 1, 19, 16 )
 end

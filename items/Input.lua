@@ -42,15 +42,21 @@ function Input:setup( x, y, slot1, slot2, slot3, slot4 )
 	for i = 1, 4 do self.arcs[i]:setPosition( self.pos.x, self.pos.y ) end
 end
 
+function Input:tick()
+	if not self:getObjectAbove( "Paint" ) then
+		self:input()
+	end
+end
+
 function Input:generateInputStack()
 	self.inputStack = table.copy( self.slots )
 	table.shuffle( self.inputStack )
 	
-	-- Stock up the stack 4 more times.
+	-- Stock up the stack 10 more times.
 	local tmp = table.copy( self.inputStack )
-	for i = 1, 4 do
+	for i = 1, 10 do
 		table.shuffle( tmp )
-		for ii = 1, 4 do
+		for ii = 1, #self.slots do
 			self.inputStack[#self.inputStack+1] = tmp[ii]
 		end
 	end
@@ -59,14 +65,14 @@ end
 function Input:restockInputStack()
 	local tmp = table.copy( self.slots )
 	table.shuffle( tmp )
-	for i = 1, 4 do
+	for i = 1, #self.slots do
 		self.inputStack[#self.inputStack+1] = tmp[i]
 	end
 end
 
 function Input:input()
 	-- If inputStack is running low then restock with more paint.
-	if self.inputCount == 4 then
+	if self.inputCount == #self.slots then
 		self:restockInputStack()
 		self.inputCount = 0
 	end
@@ -82,11 +88,7 @@ end
 
 function Input:draw()
 	local lg = love.graphics
-	lg.setColor( 255,255,255,128 )
-	
-	-- Draw pipe running from left of screen.
-	lg.setLine( 12, 'rough' )
-	lg.line( 0, self.pos.y, self.pos.x, self.pos.y )
+	lg.setColor( 255,255,255,255 )
 	
 	-- Draw the paints in the pipe.
 	if self.inputStack then
@@ -96,13 +98,18 @@ function Input:draw()
 		end
 	end
 	
+	-- Draw pipe running from left of screen.
+	lg.setLine( 12, 'rough' )
+	lg.setColor( 255, 255, 255, 128 )
+	lg.line( 0, self.pos.y, self.pos.x, self.pos.y )
+	
 	-- Draw the input circle.
 	lg.setColor( 255,255,255,255 )
 	lg.draw( self.image, self.pos.x -25, self.pos.y -25 )
 	
 	-- Draw the input circle segments.
 	lg.setColor( 255,255,255,100 )
-	for i = 1, 4 do
+	for i = 1, #self.slots do
 		local color = Paint.colors[self.slots[i]]
 		lg.setColor( color[1], color[2], color[3], 128 )
 		self.arcs[i]:drawDegrees( self.arcs[i].angle1, self.arcs[i].angle2 )

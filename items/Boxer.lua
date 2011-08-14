@@ -1,5 +1,6 @@
 
 Boxer = Node:subclass('Boxer')
+Boxer.image = love.graphics.newImage( "images/objects/boxer-object.png" )
 
 function Boxer:initialize()
 	Node.initialize( self )
@@ -53,7 +54,8 @@ end
 function Boxer:draw()
 	local lg = love.graphics
 	lg.setColor( 255, 255, 255 )
-	lg.setLine( 1 )
-	lg.rectangle( 'line', self.pos.x - 20, self.pos.y - 20, 40, 40 )
-	lg.rectangle( 'line', self.output.pos.x - 20, self.output.pos.y - 20, 40, 40 )
+	lg.draw( self.image, self.pos.x, self.pos.y, 0, 1, 1, 22, 16 )
+	--lg.setLine( 1 )
+	--lg.rectangle( 'line', self.pos.x - 20, self.pos.y - 20, 40, 40 )
+	--lg.rectangle( 'line', self.output.pos.x - 20, self.output.pos.y - 20, 40, 40 )
 end

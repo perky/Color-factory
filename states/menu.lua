@@ -2,36 +2,52 @@ require "MenuButton"
 local menu = Gamestate.new()
 
 function menu:init()
+	font_secretcode_16 = love.graphics.newFont( 'fonts/SECRCODE.TTF', 16 )
 	self.levelData = self:loadLevels()
 	self.buttons = {}
 	for i, level in ipairs( self.levelData ) do
 		self.buttons[#self.buttons+1] = MenuButton:new( 100, 100+(i-1)*28, level.name, self.runLevel, self, level )
 	end
+	
+	self.keys = [[
+escape - return to menu at any time
+f12    - toggle fullscreen
+m      - toggle mute
+tab    - switch waldo
+space  - run / pause program
+period - stop program
+up     - speed up program
+down   - slow down program
+backspace - remove command
+left   - previous command
+right  - next command
+]]
 end
 
 function menu:enter( previous )
-	
 end
 
 function menu:update( dt )
 	for i, button in ipairs( self.buttons ) do button:update(dt) end
+	if splash_song:isStopped() then
+		menu_song:play()
+	end
 end
 
 function menu:draw()
 	love.graphics.setBackgroundColor( 30, 30, 30 )
+	love.graphics.setFont( font_secretcode_12 )
 	for i, button in ipairs( self.buttons ) do button:draw() end
+	love.graphics.setColor( 255,255,255,255 )
+	love.graphics.print( self.keys, 450, 100 )
 end
 
 function menu:mousepressed( x, y, key )
-end
-
-function menu:mousereleased( x, y, key )
 	for i, button in ipairs( self.buttons ) do button:mousereleased( x, y, key ) end
 end
 
 function menu:runLevel( level )
 	Gamestate.switch( stateLevel, level )
-	menu_song:setLooping( false )
 end
 
 function menu:loadLevels()
