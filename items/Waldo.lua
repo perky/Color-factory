@@ -37,6 +37,14 @@ function Waldo:setup( x, y, length, direction )
 	end
 end
 
+function Waldo:loadPos( ... )
+	Node.loadPos( self, ... )
+	self.extended 		= true
+	self.horizontal 	= false
+	self.vertical 		= false
+	self.isGrabbing	= false
+end
+
 function Waldo:update( dt )
 	if self.disabled then return end
 	Node.update( self, dt )
