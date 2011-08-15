@@ -5,6 +5,7 @@ Mixer.image = love.graphics.newImage( "images/objects/mixer-object.png" )
 function Mixer:initialize()
 	Boxer.initialize( self )
 	self.paint = nil
+	self.ungrabable = true
 end
 
 function Mixer:onObjectDroppedAbove( object )

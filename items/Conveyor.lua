@@ -35,7 +35,9 @@ function Conveyor:initialize()
 end
 
 function Conveyor:setup( x, y, direction )
-	self:setGridPos( x, y )
+	Node.setup( self, x, y, direction )
+	self.endPoint.idString = self.idString .. "end"
+
 	self.direction = direction
 	if direction == CONVEYOR_HORIZONTAL then
 		self.endPoint.pos = vector( self.pos.x + TILE_SIZE * CONVEYOR_DEFAULT_LENGTH, self.pos.y )

@@ -40,16 +40,20 @@ function Output:output()
 	local object
 	if self.outputType == OUTPUT_PAINT then
 		object = self:checkForColor( self.slots[1] )
+		if not object then return false end
 		self.pipePaint[#self.pipePaint+1] = { x = self.pos.x, col = object.paintColor }
 	elseif self.outputType == OUTPUT_BOX then
 		object = self:checkForBox( self.slots )
-		self.pipePaint[#self.pipePaint+1] = { x = self.pos.x, col = PAINT_WHITE }
+		if not object then return false end
+		self.pipePaint[#self.pipePaint+1] = { x = self.pos.x, col = PAINT_ANY }
 	end
 	
 	if object then
 		object:destroy()
 		stateLevel:onOutputSuccessfull()
 	end
+	
+	return true
 end
 
 function Output:update( dt )

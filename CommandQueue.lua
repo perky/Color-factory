@@ -88,6 +88,11 @@ function CommandQueue:removeCommand( pos )
 	self:createJumpList()
 end
 
+function CommandQueue:clearCommands()
+	self.commands = {}
+	self.commandsPos = 1
+end
+
 function CommandQueue:draw( x, y )
 	local lg = love.graphics
 	lg.setColor( 255, 255, 255 )

@@ -1,31 +1,48 @@
 
 Sensor = Node:subclass('Sensor')
 Sensor:include(Beholder)
+Sensor.instances = {}
 
 Sensor.image = love.graphics.newImage("images/objects/sensor-object.png")
+
+-- Class method.
+function Sensor.onFireSensors()
+	for i,v in ipairs(Sensor.instances) do
+		if v:checkForColor() then
+			return true
+		end
+	end
+end
 
 function Sensor:initialize()
 	Node.initialize( self )
 	self.static  		= false
-	self:observe( 'fireSensors', Sensor.onFireSensors, self )
 	self.ungrabable = true
 	table.insert( Objects, self )
+	table.insert( self.instances, self )
+end
+
+function Sensor:destroy()
+	for i,v in ipairs(self.instances) do
+		if v == self then 
+			table.remove( self.instances, i )
+			break
+		end
+	end
+	Node.destroy( self )
 end
 
 function Sensor:setup( x, y, colorToDetect )
-	self:setGridPos( x, y )
+	Node.setup( self, x, y, colorToDetect )
 	self.colorToDetect = colorToDetect
-end
-
-function Sensor:onFireSensors()
-	if self:checkForColor() then
-		Beholder.trigger('fireSensorTrue')
-	end
 end
 
 function Sensor:checkForColor( color )
 	local color = color or self.colorToDetect
 	local paint = self:getObjectAbove( "Paint" )
+	if paint and color == PAINT_ANY then
+		return paint
+	end
 	if paint and paint.paintColor == color then
 		return paint
 	end

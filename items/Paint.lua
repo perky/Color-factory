@@ -1,16 +1,17 @@
 
 Paint = Node:subclass("Paint")
 
-PAINT_WHITE		= 0
+PAINT_ANY		= 0
 PAINT_RED 		= 1
 PAINT_YELLOW 	= 2
 PAINT_ORANGE	= 3
 PAINT_BLUE		= 4
 PAINT_PURPLE	= 5
 PAINT_GREEN		= 6
+PAINT_ANY		= 7
 
 Paint.colors	= {}
-Paint.colors[PAINT_WHITE]		= { 255, 255, 255 }
+Paint.colors[PAINT_ANY]		= { 255, 255, 255 }
 Paint.colors[PAINT_RED]		= { 255, 0, 0 }
 Paint.colors[PAINT_YELLOW]	= { 255, 255, 0 }
 Paint.colors[PAINT_BLUE]	= { 0, 0, 255 }

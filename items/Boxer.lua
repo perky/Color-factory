@@ -10,6 +10,7 @@ function Boxer:initialize()
 	self:addChild( self.output )
 	self.box 	= nil
 	self.static = false
+	self.ungrabable = true
 end
 
 function Boxer:setup( x, y )

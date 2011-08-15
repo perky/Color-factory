@@ -29,6 +29,7 @@ function level:enter( previous, levelData )
 	dtTimer = 0
 	waitingQueue = {}
 	
+	self.levelData = levelData
 	self:loadLevel( levelData )
 	
 	-- create playback buttons.
@@ -42,12 +43,17 @@ function level:enter( previous, levelData )
 end
 
 function level:leave()
+	self:saveState()
 	Objects = nil
 	commandQueue = nil
 	waldos = nil
 	waitingQueue = nil
 	currentLevel = nil
 	Button.instances = {}
+end
+
+function level:quit()
+	self:saveState()
 end
 
 function level:update( dt )
@@ -139,14 +145,14 @@ function resetLevel()
 	
 	clearPaint()
 	waitingQueue = {}
-	
 end
 
 function clearPaint()
-	for i,v in ipairs( Objects ) do
-		if instanceOf( Paint, v ) then
-			table.remove( Objects, i )
-			v:destroy()
+	local size = #Objects
+	for i=1,size do
+		local obj = Objects[i]
+		if obj and instanceOf( Paint, obj ) then
+			obj:destroy()
 		end
 	end
 end
@@ -219,6 +225,10 @@ function level:keypressed( key, unicode )
 		commandQueue[currentWaldo]:addCommand( CMD_JUMPOUT )
 	elseif key == 'escape' then
 		Gamestate.switch( stateMenu )
+	elseif key == 'k' then
+		self:saveState()
+	elseif key == 'l' then
+		self:loadState()
 	end
 end
 
@@ -240,6 +250,7 @@ end
 
 function level:loadLevel( levelData )
 	self.cash = 0
+	
 	levelData.load()
 	if levelData.enableAllButtons then
 		Button.createCommands()
@@ -250,11 +261,76 @@ function level:loadLevel( levelData )
 	if levelData.tutorial then
 		self.tutorial = love.graphics.newImage("images/tutorials/"..levelData.tutorial)
 	end
+	
+	self:loadState()
 end
 
 function level:onOutputSuccessfull()
 	self.cash = self.cash + 10
 	print( "$" .. self.cash )
+end
+
+function addCommand( waldoColor, command )
+	commandQueue[ waldoColor ]:addCommand( command )
+end
+
+function moveWaldo( waldoColor, gridX, gridY )
+	local waldo = waldos[ waldoColor ]
+	waldo:setGridPos( gridX, gridY )
+end
+
+function moveItem( idString, gridX, gridY )
+	for i,v in ipairs(Objects) do
+		if v.idString == idString then 
+			v:setGridPos( gridX, gridY )
+			break
+		end
+	end
+end
+
+function level:loadState()
+	local fs = love.filesystem
+	local format = string.format
+	local savefileName = format( "levelsave_%03d.lua", self.levelData.number )
+	
+	if love.filesystem.exists( savefileName ) then
+		local saveChunk = fs.load( savefileName )
+		local saveTable = saveChunk()
+		resetLevel()
+		commandQueue[ WALDO_RED ]:clearCommands()
+		commandQueue[ WALDO_GREEN ]:clearCommands()
+		saveTable.load()
+		return true
+	end
+end
+
+function level:saveState()
+	local fs = love.filesystem
+	local format = string.format
+	
+	fs.setIdentity("colorfactory")
+	local savefile = fs.newFile( format( "levelsave_%03d.lua", self.levelData.number ) )
+	savefile:open('w')
+	savefile:write("local save = {}\n")
+	savefile:write( format( "save.levelnumber = %d\n", self.levelData.number ) )
+	savefile:write("function save.load()\n")
+	for i,v in ipairs(commandQueue[WALDO_RED].commands) do
+		savefile:write( format( "addCommand(%d,%d)\n", WALDO_RED, v ) )
+	end
+	for i,v in ipairs(commandQueue[WALDO_GREEN].commands) do
+		savefile:write( format( "addCommand(%d,%d)\n", WALDO_GREEN, v ) )
+	end
+	for i,v in ipairs(Objects) do
+		if not instanceOf( Paint, v ) and not instanceOf( InputOutput, v ) and not instanceOf( Waldo, v) then
+			local pos = v:gridPos()
+			savefile:write( format( "moveItem('%s',%d,%d)\n", v.idString, pos.x, pos.y ) )
+		end
+	end
+	savefile:write( format( "moveWaldo(%d,%d,%d)\n", WALDO_RED, waldos[WALDO_RED]:gridPos().x, waldos[WALDO_RED]:gridPos().y ) )
+	savefile:write( format( "moveWaldo(%d,%d,%d)\n", WALDO_GREEN, waldos[WALDO_GREEN]:gridPos().x, waldos[WALDO_GREEN]:gridPos().y ) )
+	savefile:write("end\n")
+	savefile:write("return save\n")
+	savefile:close()
 end
 
 return level

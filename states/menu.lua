@@ -10,10 +10,12 @@ function menu:init()
 	end
 	
 	self.keys = [[
+tab    - switch waldo
+l      - load
+k      - save
 escape - return to menu at any time
 f12    - toggle fullscreen
 m      - toggle mute
-tab    - switch waldo
 space  - run / pause program
 period - stop program
 up     - speed up program

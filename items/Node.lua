@@ -13,6 +13,7 @@ function Node:initialize( x, y )
 	self.savedPos = self.pos
 	self.color 	= { 255, 255, 255, 255 }
 	self:findZSlot()
+	self.idString = self.class.name
 end
 
 function Node:findZSlot()
@@ -25,8 +26,17 @@ function Node:setZ( z )
 	Node.zSlot = Node.zSlot - 1
 end
 
-function Node:setup( x, y )
+function Node:setup( x, y, ... )
 	self:setGridPos( x, y )
+	self:generateID( x, y, ... )
+end
+
+function Node:generateID( ... )
+	local idString = self.class.name
+	for k,v in pairs(arg) do
+		idString = idString .. tostring(v)
+	end
+	self.idString = idString
 end
 
 function Node:destroy()
@@ -50,7 +60,6 @@ function Node:onWaldoGrab() end
 function Node:tick() end
 
 function Node:savePos()
-	print(self:gridPos()-vector(0,2))
 	self.savedPos = self.pos
 	for k, child in ipairs( self.children ) do
 		child:savePos()
