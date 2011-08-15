@@ -38,11 +38,12 @@ function CommandQueue:initialize( waldoColor )
 	self:observe('play', CommandQueue.play, self)
 	self:observe('pause', CommandQueue.pause, self)
 	self.commandingWaldo = waldoColor
+	
+	self:createJumpList()
 end
 
 function CommandQueue:onSensorTrue()
 	if self.awaitingSensorResponse then
-		print('sensor true')
 		self.sensorTrue = true
 	end
 end
@@ -73,6 +74,8 @@ function CommandQueue:addCommand( command )
 		self.commandsPos = self.commandsPos + 1
 	end
 	table.insert(self.commands, self.commandsPos, command )
+	
+	self:createJumpList()
 end
 
 function CommandQueue:removeCommand( pos )
@@ -81,14 +84,25 @@ function CommandQueue:removeCommand( pos )
 	if self.commandsPos > #self.commands then
 		self.commandsPos = self.commandsPos - 1
 	end
+	
+	self:createJumpList()
 end
 
 function CommandQueue:draw( x, y )
-	love.graphics.setColor( 255, 255, 255 )
-	love.graphics.setColor( waldos[self.commandingWaldo].color )
+	local lg = love.graphics
+	lg.setColor( 255, 255, 255 )
 	-- Draw commands.
-	for k, command in ipairs( self.commands ) do
-		love.graphics.draw( self.commandImages[command], 450+(44*k)-((self.commandsPos-1)*44), y, 0, 0.65 )
+	
+	for i, command in ipairs( self.commands ) do
+		lg.setColor( waldos[self.commandingWaldo].color )
+		if (i == self.commandsPos and (command == CMD_JUMPOUT or command == CMD_JUMP or command == CMD_SENSE)) or
+			(self.commands[self.commandsPos] == CMD_SENSE and i == self.senseList[self.commandsPos]) or
+			(self.commands[self.commandsPos] == CMD_SENSE and i == self.jumpinList[self.senseList[self.commandsPos]]) or
+			(self.commands[self.commandsPos] == CMD_JUMP and i == self.jumpinList[self.commandsPos]) or
+		   (self.commands[self.commandsPos] == CMD_JUMPOUT and i == self.jumpoutList[self.commandsPos]) then
+				lg.setColor( 255, 255,255 )
+		end
+		love.graphics.draw( self.commandImages[command], 450+(44*i)-((self.commandsPos-1)*44), y, 0, 0.65 )
 	end
 end
 
@@ -153,7 +167,6 @@ function CommandQueue:runCommand()
 		self.sensorTrue = false
 		self:sensorJump()
 	end
-	self.awaitingSensorResponse = false
 	
 	-- Move command pos on.
 	self:next()
@@ -175,8 +188,9 @@ function CommandQueue:runCommand()
 	elseif command == CMD_EXTEND then
 		waldos[waldo]:extend()
 	elseif command == CMD_SENSE then
-		self.awaitingSensorResponse = true
-		Beholder.trigger('fireSensors')
+		if Sensor.onFireSensors() then
+			self.sensorTrue = true
+		end
 	elseif command == CMD_JUMP then
 		lastWaldo = waldo
 		self:jump( )
@@ -197,28 +211,50 @@ function CommandQueue:runCommand()
 	end
 end
 
-function CommandQueue:sensorJump( )
-	if self.commandsPos >= #self.commands then return end
-	local waldo = lastWaldo
-	for i = self.commandsPos+1, #self.commands do
-		local command = self.commands[i]
-		if command and (command == CMD_JUMP or command == CMD_SENSE) then
-			self.commandsPos = i
-			break
+function CommandQueue:createJumpList()
+	local jumpinList 	= {}
+	local jumpoutList = {}
+	local senseList	= {}
+	local command1, command2
+	local jumpref = 0
+	for i1 = 1, #self.commands do
+		command1 = self.commands[i1]
+		if command1 == CMD_JUMP then
+			jumpref = 0
+			for i2 = i1+1, #self.commands do
+				command2 = self.commands[i2]
+				if command2 == CMD_JUMP then jumpref = jumpref + 1 end
+				if jumpref == 0 and command2 == CMD_JUMPOUT and not jumpoutList[i2] then
+					jumpoutList[i2] 	= i1
+					jumpinList[i1]		= i2
+					break
+				end
+				if command2 == CMD_JUMPOUT then jumpref = jumpref - 1 end
+			end
+		elseif command1 == CMD_SENSE then
+			for i2 = i1+1, #self.commands do
+				command2 = self.commands[i2]
+				if command2 == CMD_JUMP then
+					senseList[i1] = i2
+					break
+				end
+			end
 		end
 	end
+	
+	self.jumpinList 	= jumpinList
+	self.jumpoutList 	= jumpoutList
+	self.senseList		= senseList
+end
+
+function CommandQueue:sensorJump( )
+	if self.commandsPos >= #self.commands then return end
+	self.commandsPos = self.senseList[self.commandsPos]
 end
 
 function CommandQueue:jump( )
 	if self.commandsPos >= #self.commands then return end
-	local waldo = lastWaldo
-	for i = self.commandsPos+1, #self.commands do
-		local command = self.commands[i]
-		if command and command == CMD_JUMPOUT then
-			self.commandsPos = i
-			break
-		end
-	end
+	self.commandsPos = self.jumpinList[self.commandsPos]
 end
 
 function CommandQueue:loopin()
