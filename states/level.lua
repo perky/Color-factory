@@ -291,10 +291,16 @@ end
 function level:loadState()
 	local fs = love.filesystem
 	local format = string.format
-	local savefileName = format( "levelsave_%03d.lua", self.levelData.number )
+
+	local saveFilename
+	if self.levelData.custom then
+	   saveFilename = format( "levelsave_%s.lua", self.levelData.filename )
+	else
+	   saveFilename = format( "levelsave_%03d.lua", self.levelData.number )
+	end
 	
-	if love.filesystem.exists( savefileName ) then
-		local saveChunk = fs.load( savefileName )
+	if love.filesystem.exists( saveFilename ) then
+		local saveChunk = fs.load( saveFilename )
 		local saveTable = saveChunk()
 		resetLevel()
 		commandQueue[ WALDO_RED ]:clearCommands()
@@ -308,11 +314,16 @@ function level:saveState()
 	local fs = love.filesystem
 	local format = string.format
 	
-	fs.setIdentity("colorfactory")
-	local savefile = fs.newFile( format( "levelsave_%03d.lua", self.levelData.number ) )
+	local saveFilename
+	if self.levelData.custom then
+	   saveFilename = format( "levelsave_%s.lua", self.levelData.filename )
+	else
+	   saveFilename = format( "levelsave_%03d.lua", self.levelData.number )
+	end
+	
+	local savefile = fs.newFile( saveFilename )
 	savefile:open('w')
 	savefile:write("local save = {}\n")
-	savefile:write( format( "save.levelnumber = %d\n", self.levelData.number ) )
 	savefile:write("function save.load()\n")
 	for i,v in ipairs(commandQueue[WALDO_RED].commands) do
 		savefile:write( format( "addCommand(%d,%d)\n", WALDO_RED, v ) )

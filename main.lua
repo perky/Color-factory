@@ -1,4 +1,4 @@
-GAME_VERSION = "0.8"
+GAME_VERSION = "0.9"
 
 vector 		= require "util.vector"
 Timer  		= require "util.timer"
@@ -49,6 +49,19 @@ function love.load()
 	screenOffset = { x = 0, y = 0 }
 	isFullscreen = false
 	love.graphics.setBackgroundColor( 34, 34, 34 )
+	
+	-- Set the write directory
+	love.filesystem.setIdentity("colorfactory")
+	-- create the custom levels folder if it doesn't exist.
+	if not love.filesystem.exists( "customlevels" ) then
+		love.filesystem.mkdir( "customlevels" )
+		local templatefile = love.filesystem.newFile( "customlevels/customtemplate.lua" )
+		templatefile:open('w')
+		for line in love.filesystem.lines( "customtemplate.lua" ) do
+		   templatefile:write( line .. "\n" )
+		end
+		templatefile:close()
+	end
 	
 	splash_song 	= love.audio.newSource( 'sound/intro.ogg', 'static' )
 	menu_song 		= love.audio.newSource( 'sound/menu_loop.ogg', 'static' )

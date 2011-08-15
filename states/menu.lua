@@ -5,8 +5,14 @@ function menu:init()
 	font_secretcode_16 = love.graphics.newFont( 'fonts/SECRCODE.TTF', 16 )
 	self.levelData = self:loadLevels()
 	self.buttons = {}
+	local title
 	for i, level in ipairs( self.levelData ) do
-		self.buttons[#self.buttons+1] = MenuButton:new( 100, 100+(i-1)*28, level.name, self.runLevel, self, level )
+	   if level.author then
+	      title = string.format( "%s (by %s)", level.name, level.author )
+	   else
+	      title = level.name
+	   end
+		self.buttons[#self.buttons+1] = MenuButton:new( 100, 100+(i-1)*28, title, self.runLevel, self, level )
 	end
 	
 	self.keys = [[
@@ -56,15 +62,24 @@ end
 function menu:loadLevels()
 	local lfs = love.filesystem
 	
-	levelFilenames = lfs.enumerate( "levels/" )
-	local levelChunks = {}
 	local levelData = {}
+	self:readLevelFiles( "levels/", levelData )
+	self:readLevelFiles( "customlevels/", levelData )
+	
+	return levelData
+end
+
+function menu:readLevelFiles( levelDir, levelData )
+	local lfs = love.filesystem
+	local levelFilenames = lfs.enumerate( levelDir )
+	local levelChunks = {}
 	for i, levelFilename in ipairs( levelFilenames ) do
 		local chunkPos =  #levelChunks+1
-		levelChunks[chunkPos] = lfs.load( "levels/" .. levelFilename )
-		levelData[#levelData+1] = levelChunks[chunkPos]() 
+		local dataPos	=  #levelData+1
+		levelChunks[chunkPos] 	= lfs.load( levelDir .. levelFilename )
+		levelData[dataPos] 		= levelChunks[chunkPos]() 
+		levelData[dataPos].filename = string.sub( levelFilename, 1, -5 )
 	end
-	
 	return levelData
 end
 
