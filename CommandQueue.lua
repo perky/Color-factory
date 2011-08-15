@@ -24,6 +24,7 @@ CMD_DROP			= 15
 STOPPED			= 0
 PLAYING			= 1
 PAUSED			= 2
+PRESTOPPED     = 3
 
 function CommandQueue:initialize( waldoColor )
 	self.commands = {}
@@ -34,7 +35,7 @@ function CommandQueue:initialize( waldoColor )
 	self.loopPoints = {}
 	self:observe('fireSensorTrue', CommandQueue.onSensorTrue, self)
 	self:observe('nextTick', CommandQueue.runCommand, self)
-	self:observe('stop', CommandQueue.stop, self)
+	self:observe('stop', CommandQueue.onStopNotification, self)
 	self:observe('play', CommandQueue.play, self)
 	self:observe('pause', CommandQueue.pause, self)
 	self.commandingWaldo = waldoColor
@@ -135,6 +136,10 @@ function CommandQueue:pause()
 	self.state = PAUSED
 end
 
+function CommandQueue:onStopNotification()
+   self.state = PRESTOPPED
+end
+
 function CommandQueue:stop()
 	self.commandsPos = #self.commands
 	self.state = STOPPED
@@ -155,6 +160,11 @@ function CommandQueue:prev()
 end
 
 function CommandQueue:runCommand()
+   if self.state == PRESTOPPED then 
+      self.state = STOPPED
+      resetLevel()
+      return
+   end
 	if self.state ~= PLAYING then return end
 	
 	-- Clear the waiting queue if the waiting queue is full.
