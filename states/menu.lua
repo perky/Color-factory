@@ -11,6 +11,9 @@ function menu:init()
 	
 	self.keys = [[
 tab    - switch waldo
+left   - previous command
+right  - next command
+backspace - remove command
 l      - load
 k      - save
 escape - return to menu at any time
@@ -20,9 +23,6 @@ space  - run / pause program
 period - stop program
 up     - speed up program
 down   - slow down program
-backspace - remove command
-left   - previous command
-right  - next command
 ]]
 end
 
@@ -42,6 +42,7 @@ function menu:draw()
 	for i, button in ipairs( self.buttons ) do button:draw() end
 	love.graphics.setColor( 255,255,255,255 )
 	love.graphics.print( self.keys, 450, 100 )
+	love.graphics.print( "v"..GAME_VERSION, 10, 10 )
 end
 
 function menu:mousepressed( x, y, key )

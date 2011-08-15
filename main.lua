@@ -1,3 +1,5 @@
+GAME_VERSION = "0.8"
+
 vector 		= require "util.vector"
 Timer  		= require "util.timer"
 Ringbuffer 	= require "util.ringbuffer"
