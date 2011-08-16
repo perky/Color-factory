@@ -1,8 +1,6 @@
 
 Node = class("Node")
 Node:include(Branchy)
-Node:include(Callbacks)
-Node:after( 'setup', 'savePos' )
 
 Node.dragging = false
 Node.zSlot = 0
@@ -29,6 +27,7 @@ end
 function Node:setup( x, y, ... )
 	self:setGridPos( x, y )
 	self:generateID( x, y, ... )
+	self:savedPos()
 end
 
 function Node:generateID( ... )
