@@ -1,5 +1,12 @@
 local level = Gamestate.new()
 
+STOPPED			= 0
+PLAYING			= 1
+PAUSED			= 2
+PRESTOPPED     = 3
+
+COUNTDOWN_DURATION = 300
+
 function level:init()
 	local lg = love.graphics
 	level.header_image = lg.newImage('images/header.png')
@@ -17,6 +24,8 @@ function level:enter( previous, levelData )
 	commandQueue 	= {}
 	commandQueue[ WALDO_RED ]	 = CommandQueue:new( WALDO_RED )
 	commandQueue[ WALDO_GREEN ] = CommandQueue:new( WALDO_GREEN )
+	commandQueue[ WALDO_RED ].delegate = self
+	commandQueue[ WALDO_GREEN ].delegate = self
 	
 	currentWaldo = WALDO_RED
 	waldos		 = {}
@@ -28,15 +37,17 @@ function level:enter( previous, levelData )
 	
 	dtTimer = 0
 	waitingQueue = {}
+	self.countdown = COUNTDOWN_DURATION
+	self.state = STOPPED
 	
 	self.levelData = levelData
 	self:loadLevel( levelData )
 	
 	-- create playback buttons.
 	Button:new( level.togglewaldo_image, 870, 12, {255,255,255}, switchWaldo )
-	Button:new( level.stop_image, 900, 12, {255,255,255}, resetLevel )
-	Button:new( level.pause_image, 930, 12, {255,255,255}, Beholder.trigger, 'pause' )
-	Button:new( level.play_image, 960, 12, {255,255,255}, Beholder.trigger, 'play' )
+	Button:new( level.stop_image, 900, 12, {255,255,255}, self.stop, self )
+	Button:new( level.pause_image, 930, 12, {255,255,255}, self.pause, self )
+	Button:new( level.play_image, 960, 12, {255,255,255}, self.play, self )
 	
 	self.fade = { a = 255 }
 	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
@@ -56,6 +67,85 @@ function level:quit()
 	self:saveState()
 end
 
+function level:outputDidOutput( output, obj )
+   if output.outputType == OUTPUT_PAINT and output.slots[1] == PAINT_ANY then
+      -- Do not generate cash
+   elseif obj.class.name == "Paint" then
+      self.cash = self.cash + 10
+   elseif obj.class.name == "Box" then
+      self.cash = self.cash + (10 * #obj.slots) + 10
+   end
+end
+
+function level:commandQueueDidAddCommand( command )
+   self.cash = self.cash - 1
+end
+
+function level:commandQueueDidRemoveCommand( command )
+   self.cash = self.cash + 1
+end
+
+function level:togglePlay()
+	if self.state == STOPPED then
+		self:play()
+	else
+		if self.state == PLAYING then
+			self:pause()
+		else
+			self:play()
+		end
+	end
+end
+
+function level:play()
+	if self.state == STOPPED then
+		commandQueue[WALDO_RED]:rewind()
+   	commandQueue[WALDO_GREEN]:rewind()
+	end
+	self.state = PLAYING
+end
+
+function level:pause()
+	self.state = PAUSED
+end
+
+function level:stop()
+   if self.state == PRESTOPPED or self.state == STOPPED then
+      self.state = STOPPED
+      level:reset()
+   else
+      self.state = PRESTOPPED
+      commandQueue[WALDO_RED]:fastforward()
+   	commandQueue[WALDO_GREEN]:fastforward()
+   end
+end
+
+function level:reset()
+	-- Stop all command queues.
+	Beholder.trigger("resetInputs")
+	-- Reload all objects to their saved position.
+	for k, v in ipairs( Objects ) do
+		v:loadPos()
+	end
+	
+	clearPaint()
+	waitingQueue = {}
+	self.countdown = COUNTDOWN_DURATION
+	local numberOfCommands = #commandQueue[WALDO_RED].commands + #commandQueue[WALDO_GREEN].commands
+	self.cash = 0 - numberOfCommands
+end
+
+function level:tryTick()
+   if self.state == PRESTOPPED then self:stop() end
+   if self.state ~= PLAYING then return end
+   commandQueue[WALDO_RED]:runCommand()
+	commandQueue[WALDO_GREEN]:runCommand()
+	self.countdown = self.countdown - 1
+	if self.countdown == 0 then
+	   self:pause()
+	end
+end
+
 function level:update( dt )
 	Tween.update(dt)
 	local dt = dt * GAME_SPEED
@@ -67,8 +157,7 @@ function level:update( dt )
 	dtTimer = dtTimer + dt
 	if dtTimer >= 1 then
 		dtTimer = 0
-		commandQueue[WALDO_RED]:runCommand()
-		commandQueue[WALDO_GREEN]:runCommand()
+		self:tryTick()
 	end
 end
 
@@ -106,6 +195,12 @@ function level:draw()
 	lg.setColor( 255,255,255,50 )
 	lg.rectangle( 'fill', 512-25, 40, 50, 87 )
 	
+	-- Draw cash
+	lg.setColor( 255, 255, 255, 255 )
+	lg.setFont( font_secretcode_16 )
+	lg.print( "$" .. self.cash, 500, 8 )
+	lg.print( self.countdown, 500, 23 )
+	
 	-- draw tutorial.
 	if self.tutorial then
 		lg.setColor( 255, 255, 255, 255 )
@@ -119,32 +214,20 @@ function level:draw()
 	lg.rectangle( 'fill', 0, 0, 1024, 768 )
 end
 
-function setupWaldo( waldoColor, gridX, gridY, length, direction )
+function level:setupWaldo( waldoColor, gridX, gridY, length, direction )
 	waldos[waldoColor]:setup( gridX, gridY+2, length, direction )
 	waldos[waldoColor].disabled = false
 end
 
-function removeWaldo( waldoColor )
+function level:removeWaldo( waldoColor )
 	waldos[waldoColor].disabled = true
 end
 
-function addItem( className, gridX, gridY, ... )
+function level:addItem( className, gridX, gridY, ... )
 	item = className:new()
 	item:setup( gridX, gridY+2, ... )
+	item.delegate = self
 	return item
-end
-
-function resetLevel()
-	-- Stop all command queues.
-	Beholder.trigger("stop")
-	Beholder.trigger("resetInputs")
-	-- Reload all objects to their saved position.
-	for k, v in ipairs( Objects ) do
-		v:loadPos()
-	end
-	
-	clearPaint()
-	waitingQueue = {}
 end
 
 function clearPaint()
@@ -204,9 +287,9 @@ function level:keypressed( key, unicode )
 	elseif key == 'd' then
 		commandQueue[currentWaldo]:addCommand( CMD_LOOPIN )
 	elseif key == ' ' then
-		for k, v in pairs( commandQueue ) do v:toggleRun() end
+		self:togglePlay()
 	elseif key == '.' then
-		resetLevel(  )
+		self:stop()
 	elseif key == 'up' then
 		GAME_SPEED = GAME_SPEED * 2
 	elseif key == 'down' then
@@ -233,25 +316,23 @@ function level:keypressed( key, unicode )
 end
 
 function level:loadLevelNumber( levelNumber )
-	clearPaint()
+   self:reset()
 	
 	local levelData = loadfile(LEVEL_PATH .. 'level_' .. levelNumber .. '.lua')
 	currentLevel = levelData()
-	currentLevel.load()
+	currentLevel.load( self )
 	
 	if currentLevel.enableAllButtons then
 		Button.createCommands()
 	else
 		Button.createCommands( currentLevel.enabledButtons )
 	end
-	
-	self.cash = 0
 end
 
 function level:loadLevel( levelData )
-	self.cash = 0
+	self:reset()
 	
-	levelData.load()
+	levelData.load( self )
 	if levelData.enableAllButtons then
 		Button.createCommands()
 	else
@@ -263,11 +344,6 @@ function level:loadLevel( levelData )
 	end
 	
 	self:loadState()
-end
-
-function level:onOutputSuccessfull()
-	self.cash = self.cash + 10
-	print( "$" .. self.cash )
 end
 
 function addCommand( waldoColor, command )
@@ -302,10 +378,13 @@ function level:loadState()
 	if love.filesystem.exists( saveFilename ) then
 		local saveChunk = fs.load( saveFilename )
 		local saveTable = saveChunk()
-		resetLevel()
+		level:reset()
 		commandQueue[ WALDO_RED ]:clearCommands()
 		commandQueue[ WALDO_GREEN ]:clearCommands()
 		saveTable.load()
+		for k, v in ipairs( Objects ) do
+   		v:savePos()
+   	end
 		return true
 	end
 end

@@ -1,4 +1,4 @@
-GAME_VERSION = "0.9"
+GAME_VERSION = "0.10"
 
 vector 		= require "util.vector"
 Timer  		= require "util.timer"

@@ -9,14 +9,14 @@ level.enabledButtons = {
 }
 level.tutorial = "mixerandloop.png"
 
-function level.load()
-	setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )
-	setupWaldo( WALDO_RED, 8, 7, 2, LEFT )
+function level.load( l )
+	l:setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )
+	l:setupWaldo( WALDO_RED, 8, 7, 2, LEFT )
 
-	addItem( Input, 2, 5, PAINT_RED, PAINT_YELLOW )
-	addItem( Output, 10, 4, PAINT_ORANGE )
-	addItem( Mixer, 8, 3 )
-	addItem( Conveyor, 3, 1, CONVEYOR_HORIZONTAL )
+	l:addItem( Input, 2, 5, PAINT_RED, PAINT_YELLOW )
+	l:addItem( Output, 10, 4, PAINT_ORANGE )
+	l:addItem( Mixer, 8, 3 )
+	l:addItem( Conveyor, 3, 1, CONVEYOR_HORIZONTAL )
 end
 
 return level

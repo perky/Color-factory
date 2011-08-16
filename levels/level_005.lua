@@ -9,14 +9,14 @@ level.enabledButtons = {
 }
 level.tutorial = "sensor.png"
 
-function level.load()
-	setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )
-	setupWaldo( WALDO_RED, 8, 7, 2, LEFT )
+function level.load( l )
+	l:setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )
+	l:setupWaldo( WALDO_RED, 8, 7, 2, LEFT )
 
-	addItem( Input, 4, 2, PAINT_PURPLE, PAINT_GREEN, PAINT_GREEN, PAINT_GREEN )
-	addItem( Output, 10, 4, PAINT_GREEN )
-	addItem( Output, 10, 5, PAINT_PURPLE )
-	addItem( Sensor, 8, 3, PAINT_PURPLE )
+	l:addItem( Input, 4, 2, PAINT_PURPLE, PAINT_GREEN, PAINT_GREEN, PAINT_GREEN )
+	l:addItem( Output, 10, 4, PAINT_GREEN )
+	l:addItem( Output, 10, 5, PAINT_PURPLE )
+	l:addItem( Sensor, 8, 3, PAINT_PURPLE )
 end
 
 return level

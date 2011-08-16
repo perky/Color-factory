@@ -49,8 +49,8 @@ function Output:output()
 	end
 	
 	if object then
+	   self.delegate:outputDidOutput( self, object )
 		object:destroy()
-		stateLevel:onOutputSuccessfull()
 	end
 	
 	return true

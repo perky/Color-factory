@@ -9,13 +9,13 @@ level.enabledButtons = {
 }
 level.tutorial = "boxer.png"
 
-function level.load()
-	setupWaldo( WALDO_GREEN, 1, 1, 2, RIGHT )
-	setupWaldo( WALDO_RED, 8, 5, 2, LEFT )
+function level.load( l )
+	l:setupWaldo( WALDO_GREEN, 1, 1, 2, RIGHT )
+	l:setupWaldo( WALDO_RED, 8, 5, 2, LEFT )
 
-	addItem( Input, 6, 5, PAINT_RED, PAINT_BLUE )
-	addItem( Output, 10, 5, PAINT_RED, PAINT_BLUE )
-	addItem( Boxer, 8, 3 )
+	l:addItem( Input, 6, 5, PAINT_RED, PAINT_BLUE )
+	l:addItem( Output, 10, 5, PAINT_RED, PAINT_BLUE )
+	l:addItem( Boxer, 8, 3 )
 end
 
 return level

@@ -20,24 +20,14 @@ CMD_OUTPUT		= 13
 CMD_GRAB			= 14
 CMD_DROP			= 15
 
-
-STOPPED			= 0
-PLAYING			= 1
-PAUSED			= 2
-PRESTOPPED     = 3
-
 function CommandQueue:initialize( waldoColor )
 	self.commands = {}
 	self.commandsPos = 1
 	
 	self.running = false
-	self.state = STOPPED
 	self.loopPoints = {}
 	self:observe('fireSensorTrue', CommandQueue.onSensorTrue, self)
 	self:observe('nextTick', CommandQueue.runCommand, self)
-	self:observe('stop', CommandQueue.onStopNotification, self)
-	self:observe('play', CommandQueue.play, self)
-	self:observe('pause', CommandQueue.pause, self)
 	self.commandingWaldo = waldoColor
 	
 	self:createJumpList()
@@ -77,6 +67,7 @@ function CommandQueue:addCommand( command )
 	table.insert(self.commands, self.commandsPos, command )
 	
 	self:createJumpList()
+	self.delegate:commandQueueDidAddCommand()
 end
 
 function CommandQueue:removeCommand( pos )
@@ -87,6 +78,7 @@ function CommandQueue:removeCommand( pos )
 	end
 	
 	self:createJumpList()
+	self.delegate:commandQueueDidRemoveCommand()
 end
 
 function CommandQueue:clearCommands()
@@ -112,39 +104,6 @@ function CommandQueue:draw( x, y )
 	end
 end
 
-function CommandQueue:toggleRun()
-	if self.state == STOPPED then
-		self.commandsPos = 0
-		self:play()
-	else
-		if self.state == PLAYING then
-			self:pause()
-		else
-			self:play()
-		end
-	end
-end
-
-function CommandQueue:play()
-	if self.state == STOPPED then
-		self.commandsPos = 0
-	end
-	self.state = PLAYING
-end
-
-function CommandQueue:pause()
-	self.state = PAUSED
-end
-
-function CommandQueue:onStopNotification()
-   self.state = PRESTOPPED
-end
-
-function CommandQueue:stop()
-	self.commandsPos = #self.commands
-	self.state = STOPPED
-end
-
 function CommandQueue:next()
 	self.commandsPos = self.commandsPos + 1
 	if self.commandsPos > #self.commands then
@@ -159,14 +118,15 @@ function CommandQueue:prev()
 	end
 end
 
+function CommandQueue:rewind()
+   self.commandsPos = 0
+end
+
+function CommandQueue:fastforward()
+   self.commandsPos = #self.commands
+end
+
 function CommandQueue:runCommand()
-   if self.state == PRESTOPPED then 
-      self.state = STOPPED
-      resetLevel()
-      return
-   end
-	if self.state ~= PLAYING then return end
-	
 	-- Clear the waiting queue if the waiting queue is full.
 	if #waitingQueue >= 2 then 
 		waitingQueue = {}

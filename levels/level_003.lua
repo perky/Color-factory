@@ -9,13 +9,13 @@ level.enabledButtons = {
 }
 level.tutorial = "waitandmovement.png"
 
-function level.load()
-	setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )
-	setupWaldo( WALDO_RED, 8, 7, 2, LEFT )
+function level.load( l )
+	l:setupWaldo( WALDO_GREEN, 4, 7, 2, LEFT )
+	l:setupWaldo( WALDO_RED, 8, 7, 2, LEFT )
 
-	addItem( Input, 2, 5, PAINT_RED, PAINT_GREEN, PAINT_YELLOW, PAINT_YELLOW )
-	addItem( Output, 10, 4, PAINT_YELLOW, PAINT_YELLOW, PAINT_RED, PAINT_GREEN )
-	addItem( Boxer, 3, 3 )
+	l:addItem( Input, 2, 5, PAINT_RED, PAINT_GREEN, PAINT_YELLOW, PAINT_YELLOW )
+	l:addItem( Output, 10, 4, PAINT_YELLOW, PAINT_YELLOW, PAINT_RED, PAINT_GREEN )
+	l:addItem( Boxer, 3, 3 )
 end
 
 return level
