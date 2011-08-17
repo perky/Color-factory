@@ -14,7 +14,7 @@ function InputOutput:initialize( ... )
 end
 
 function InputOutput:setup( x, y, slot1, slot2, slot3, slot4 )
-	self:setGridPos( x, y )
+	Node.setup( self, x, y, slot1, slot2, slot3, slot4 )
 	self.slots[1] = slot1
 	self.slots[2] = slot2
 	self.slots[3] = slot3

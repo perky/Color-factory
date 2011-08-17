@@ -1,10 +1,15 @@
 require "MenuButton"
 local menu = Gamestate.new()
+local this_thread = love.thread.getThread()
+local readlevels_thread = love.thread.newThread( 'readlevels', 'readlevels-thread.lua' )
 
 function menu:init()
 	font_secretcode_16 = love.graphics.newFont( 'fonts/SECRCODE.TTF', 16 )
-	self.levelData = self:loadLevels()
+	--self.levelData = self:loadLevels()
+	self.levelData = {}
+	self.loadLevels()
 	self.buttons = {}
+	--[[
 	local title
 	for i, level in ipairs( self.levelData ) do
 	   if level.author then
@@ -14,6 +19,7 @@ function menu:init()
 	   end
 		self.buttons[#self.buttons+1] = MenuButton:new( 100, 100+(i-1)*28, title, self.runLevel, self, level )
 	end
+	]]--
 	
 	self.keys = [[
 tab    - switch waldo
@@ -35,10 +41,31 @@ end
 function menu:enter( previous )
 end
 
+function menu:addLevelButton( level )
+   if level.author then
+      title = string.format( "%s (by %s)", level.name, level.author )
+   else
+      title = level.name
+   end
+   self.buttons[#self.buttons+1] = MenuButton:new( 100, 100+(#self.buttons)*28, title, self.runLevel, self, level )
+end
+
 function menu:update( dt )
+   -- update buttons
 	for i, button in ipairs( self.buttons ) do button:update(dt) end
+	-- Play menu song once splash song has finished.
 	if splash_song:isStopped() then
 		menu_song:play()
+	end
+	-- Check for level data string from readlevels thread.
+	local levelString = readlevels_thread:receive( 'level_string' )
+	if levelString then
+	   local filename = readlevels_thread:receive( 'level_filename' )
+	   readlevels_thread:send( 'resume', true )
+	   local level = assert( loadstring(levelString) )()
+	   level.filename = filename
+	   self.levelData[#self.levelData+1] = level
+	   self:addLevelButton( level )
 	end
 end
 
@@ -60,13 +87,7 @@ function menu:runLevel( level )
 end
 
 function menu:loadLevels()
-	local lfs = love.filesystem
-	
-	local levelData = {}
-	self:readLevelFiles( "levels/", levelData )
-	self:readLevelFiles( "customlevels/", levelData )
-	
-	return levelData
+	readlevels_thread:start()
 end
 
 function menu:readLevelFiles( levelDir, levelData )

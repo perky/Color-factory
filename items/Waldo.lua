@@ -36,6 +36,7 @@ function Waldo:setup( x, y, length, direction )
 	elseif direction == DOWN then
 		self.arm:setGridPos( x, y + length )
 	end
+	self:savePos()
 end
 
 function Waldo:savePos( ... )
