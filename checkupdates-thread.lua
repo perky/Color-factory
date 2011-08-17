@@ -18,11 +18,18 @@ local function checkForNewerVersion()
    local tags = luahub.repos.tags( 'color-factory', 'perky' )
    local thisVersion = versionToTable( GAME_VERSION )
    local latestVersion = nil
-   for versionString, _ in pairs( tags ) do
-      local version = versionToTable( versionString )
-      for i,v in ipairs(version) do
-         if thisVersion[i] and version[i] and (version[i] > thisVersion[i]) then
-            latestVersion = versionString
+   for remoteVersionString, _ in pairs( tags ) do
+      local remoteVersions = versionToTable( versionString )
+      for i, remoteVersion in ipairs(remoteVersions) do
+         if thisVersion[i] then
+            if remoteVersion > thisVersion[i] then
+               latestVersion = remoteVersionString
+               break
+            elseif remoteVersion < thisVersion[i] then
+               break
+            end
+         else
+            latestVersion = remoteVersionString
             break
          end
       end
