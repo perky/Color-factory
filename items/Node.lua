@@ -27,7 +27,7 @@ end
 function Node:setup( x, y, ... )
 	self:setGridPos( x, y )
 	self:generateID( x, y, ... )
-	self:savedPos()
+	self:savePos()
 end
 
 function Node:generateID( ... )
