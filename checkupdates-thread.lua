@@ -28,7 +28,7 @@ local function checkForNewerVersion()
       end
    end
    
-   latestVersion = "0.12"
+
    if latestVersion then
       local downloadUrl = string.format( "https://github.com/downloads/perky/Color-factory/colorfactory-%s.love", latestVersion )
       local tinyurlApiUrl = string.format( "http://tinyurl.com/api-create.php?url=%s", downloadUrl )
