@@ -19,7 +19,7 @@ local function checkForNewerVersion()
    local thisVersion = versionToTable( GAME_VERSION )
    local latestVersion = nil
    for remoteVersionString, _ in pairs( tags ) do
-      local remoteVersions = versionToTable( versionString )
+      local remoteVersions = versionToTable( remoteVersionString )
       for i, remoteVersion in ipairs(remoteVersions) do
          if thisVersion[i] then
             if remoteVersion > thisVersion[i] then
