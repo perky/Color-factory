@@ -67,6 +67,11 @@ function menu:update( dt )
 	   self.levelData[#self.levelData+1] = level
 	   self:addLevelButton( level )
 	end
+	-- Check for tinyUrl of updated game.
+	local tinyUrl = checkupdates_thread:receive( 'tiny_url' )
+	if tinyUrl then
+	   self.tinyUrl = tinyUrl
+	end
 end
 
 function menu:draw()
@@ -76,6 +81,10 @@ function menu:draw()
 	love.graphics.setColor( 255,255,255,255 )
 	love.graphics.print( self.keys, 450, 100 )
 	love.graphics.print( "v"..GAME_VERSION, 10, 10 )
+	if self.tinyUrl then
+	   local s = string.format( "New update available, download from: %s", self.tinyUrl )
+	   love.graphics.print( s, 50, 10 ) 
+	end
 end
 
 function menu:mousepressed( x, y, key )

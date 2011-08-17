@@ -43,6 +43,10 @@ stateSplash = require "states.splash"
 stateMenu	= require "states.menu"
 stateLevel 	= require "states.level"
 
+checkupdates_thread = love.thread.newThread( 'checkupdates', 'checkupdates-thread.lua' )
+checkupdates_thread:start()
+checkupdates_thread:send( 'GAME_VERSION', GAME_VERSION )
+
 function love.load()
 	math.randomseed( os.time() )
 	-- setup screen mode.
