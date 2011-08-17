@@ -125,6 +125,7 @@ function level:reset()
 	Beholder.trigger("resetInputs")
 	-- Reload all objects to their saved position.
 	for k, v in ipairs( Objects ) do
+		v:reset()
 		v:loadPos()
 	end
 	
@@ -149,6 +150,7 @@ end
 function level:update( dt )
 	Tween.update(dt)
 	local dt = dt * GAME_SPEED
+	Timer.update(dt)
 	
 	for k, v in ipairs( Objects ) do
 		v:update( dt )

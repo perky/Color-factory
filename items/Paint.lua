@@ -1,5 +1,6 @@
 
 Paint = Node:subclass("Paint")
+Paint.image = love.graphics.newImage( 'images/objects/paint.png' )
 
 PAINT_ANY		= 0
 PAINT_RED 		= 1
@@ -43,7 +44,10 @@ function Paint:setColor( paintColor )
 	self.paintColor = paintColor
 end
 
-function Paint:draw()
+function Paint:draw( override )
+   if self.isHidden and not override then return false end
+   
 	love.graphics.setColor( Paint.colors[self.paintColor] )
-	love.graphics.circle( 'fill', self.pos.x, self.pos.y, 5, 50 )
+	love.graphics.draw( self.image, self.pos.x - 7, self.pos.y - 7)
+	--love.graphics.circle( 'fill', self.pos.x, self.pos.y, 5, 50 )
 end

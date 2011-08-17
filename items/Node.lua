@@ -72,6 +72,9 @@ function Node:loadPos()
 	end
 end
 
+function Node:reset()
+end
+
 function Node:getObjectAbove( classname )
 	for i, object in ipairs( Objects ) do
 		if object and object.class.name == classname and object:gridPos() == self:gridPos() and object ~= self then

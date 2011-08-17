@@ -1,6 +1,7 @@
 
 Boxer = Node:subclass('Boxer')
-Boxer.image = love.graphics.newImage( "images/objects/boxer-object.png" )
+Boxer.backimage = love.graphics.newImage( "images/objects/boxer-background.png" )
+Boxer.animstrip = love.graphics.newImage( "images/objects/boxer-anim.png" )
 
 function Boxer:initialize()
 	Node.initialize( self )
@@ -11,6 +12,12 @@ function Boxer:initialize()
 	self.box 	= nil
 	self.static = false
 	self.ungrabable = true
+	self.isBoxVisible = false
+	self.lastPaintColor = PAINT_ANY
+	
+	self.animation = newAnimation( self.animstrip, 64, 128, 1/36, 36 )
+	self.animation:stop()
+	self.animation:setMode('once')
 end
 
 function Boxer:setup( x, y )
@@ -18,12 +25,32 @@ function Boxer:setup( x, y )
 	self.box = nil
 end
 
+function Boxer:reset()
+   if self.box then
+      self.box:destroy()
+      self.box = nil
+   end
+end
+
+function Boxer:update( dt )
+   self.animation:update( dt )
+end
+
 function Boxer:onObjectDroppedAbove( object )
+   if self.box and #self.box.slots >= 4 then return false end
+   
 	if object.class.name == "Paint" then
-		if not self:checkForBox() then
-			self:createBox()
-		end
-		self.box:addPaint( object )
+		self.animation:play()
+		local paintColor = object.paintColor
+		self.lastPaintColor = paintColor
+		object:destroy()
+		Timer.add( 0.5, function() 
+		   if not self:checkForBox() then
+   			self:createBox()
+   			self.box.isHidden = true
+   		end
+   		self.box:addPaint( paintColor ) 
+		end )
 	elseif object.class.name == "Box" then
 		if not self:checkForBox() then
 			self.box = object
@@ -54,8 +81,14 @@ end
 
 function Boxer:draw()
 	local lg = love.graphics
-	lg.setColor( 255, 255, 255 )
-	lg.draw( self.image, self.pos.x, self.pos.y, 0, 1, 1, 22, 16 )
+	lg.setColor( 255, 255, 255, 255 )
+	lg.draw( self.backimage, self.pos.x, self.pos.y, 0, 1, 1, 32, 32 )
+	
+	if self.box then self.box:draw( true ) end
+	
+	lg.setColor( Paint.colors[self.lastPaintColor] )
+	self.animation:draw( self.pos.x, self.pos.y, 0, 1, 1, 32, 32 )
+	--lg.draw( self.image, self.pos.x, self.pos.y, 0, 1, 1, 22, 16 )
 	--lg.setLine( 1 )
 	--lg.rectangle( 'line', self.pos.x - 20, self.pos.y - 20, 40, 40 )
 	--lg.rectangle( 'line', self.output.pos.x - 20, self.output.pos.y - 20, 40, 40 )

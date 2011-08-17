@@ -167,6 +167,10 @@ function vector:rotateAround( originVector, angle )
 	return self
 end
 
+function vector:angle()
+   return math.atan2( self.y, self.x )
+end
+
 function vector:signedAngle( vec )
 	local atan2 = math.atan2
 	return atan2(vec.y,vec.x) - atan2(self.y,self.x)

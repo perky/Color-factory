@@ -1,9 +1,14 @@
+require "AnAL.AnAL"
+
 Conveyor = Node:subclass( 'Conveyor' )
 
 CONVEYOR_HORIZONTAL 	= 1
 CONVEYOR_VERTICAL		= 2
 
 CONVEYOR_DEFAULT_LENGTH = 5
+
+local conveyorAnim = love.graphics.newImage('images/objects/conveyor-anim.png')
+Conveyor.animation = newAnimation( conveyorAnim, 64, 64, 1/47.5, 24 )
 
 function Conveyor:initialize()
 	Node.initialize( self )
@@ -23,6 +28,7 @@ function Conveyor:initialize()
 	
 	self.endPoint.mousereleased = function( self, x, y, key )
 		Node.mousereleased( self, x, y, key)
+		if not self.parent.directionVec then return end
 		local endPos = self.pos + self.parent.directionVec*TILE_SIZE
 		if endPos ~= Node.pixelPosToGridPos( endPos ) then
 			self.pos = self.lastPos
@@ -70,6 +76,11 @@ end
 
 function Conveyor:update( dt )
 	Node.update( self, dt )
+	
+	-- update animation.
+	self.animation:update( dt )
+	
+	--[[
 	self:getDirectionVec( )
 	local startPos = self.pos - self.directionVec*TILE_SIZE
 	local endPos  	= self.endPoint.pos + self.directionVec*TILE_SIZE
@@ -85,18 +96,33 @@ function Conveyor:update( dt )
 	local halfPoint = (endPos - startPos)/2
 	local distToHalfPoint = self.visualIndicator:distance( halfPoint + startPos )
 	self.alpha = 255 - (255/halfPoint:len())*distToHalfPoint
+	]]--
 end
 
 function Conveyor:draw()
 	local lg = love.graphics
+	self:getDirectionVec()
 	local startPos = self.pos - self.directionVec*TILE_SIZE
 	local endPos   = self.endPoint.pos + self.directionVec*TILE_SIZE
 	
-	lg.setColor( 255, 255, 255 )
 	lg.setLine( 1, 'rough' )
-	lg.line( startPos.x, startPos.y, endPos.x, endPos.y )
+	lg.setColor( 155, 155, 155, 255 )
+	lg.circle( 'fill', self.pos.x, self.pos.y, 10, 50 )
+	lg.circle( 'fill', self.endPoint.pos.x, self.endPoint.pos.y, 10, 50 )
+	lg.setColor( 255, 255, 255, 255 )
 	lg.circle( 'line', self.pos.x, self.pos.y, 10, 50 )
 	lg.circle( 'line', self.endPoint.pos.x, self.endPoint.pos.y, 10, 50 )
-	lg.setColor( 255, 255, 255, self.alpha )
-	lg.circle( 'fill', self.visualIndicator.x, self.visualIndicator.y, 4, 20 )
+	
+	lg.setColor( 255, 255, 255, 255 )
+	if not self.endPoint.isDragging then
+   	local scanPos = startPos
+      while scanPos ~= endPos do
+   	   self.animation:draw( scanPos.x, scanPos.y, self.directionVec:angle(), 1, 1, 0, 28 )
+   	   scanPos = scanPos + ( self.directionVec * TILE_SIZE )
+   	end
+	else
+   	lg.line( startPos.x, startPos.y, endPos.x, endPos.y )
+	end
+	--lg.setColor( 255, 255, 255, self.alpha )
+	--lg.circle( 'fill', self.visualIndicator.x, self.visualIndicator.y, 4, 20 )
 end
