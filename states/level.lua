@@ -13,7 +13,9 @@ function level:init()
 	level.play_image	 = lg.newImage('images/play.png')
 	level.pause_image	 = lg.newImage('images/pause.png')
 	level.stop_image	 = lg.newImage('images/stop.png')
+	level.fastplay_image = lg.newImage('images/fastplay.png')
 	level.togglewaldo_image = lg.newImage('images/togglewaldo.png')
+	level.menu_image = lg.newImage('images/menu.png')
 end
 
 function level:enter( previous, levelData )
@@ -26,6 +28,8 @@ function level:enter( previous, levelData )
 	commandQueue[ WALDO_GREEN ] = CommandQueue:new( WALDO_GREEN )
 	commandQueue[ WALDO_RED ].delegate = self
 	commandQueue[ WALDO_GREEN ].delegate = self
+	commandQueue[ WALDO_RED ].y = 47
+	commandQueue[ WALDO_GREEN ].y = 87
 	
 	currentWaldo = WALDO_RED
 	waldos		 = {}
@@ -45,10 +49,13 @@ function level:enter( previous, levelData )
 	self:loadLevel( levelData )
 	
 	-- create playback buttons.
-	Button:new( level.togglewaldo_image, 870, 12, {255,255,255}, switchWaldo )
-	Button:new( level.stop_image, 900, 12, {255,255,255}, self.stop, self )
-	Button:new( level.pause_image, 930, 12, {255,255,255}, self.pause, self )
-	Button:new( level.play_image, 960, 12, {255,255,255}, self.play, self )
+	local white = {255,255,255}
+	Button:new( level.togglewaldo_image, 840, 12, white, 0.5, switchWaldo )
+	Button:new( level.stop_image, 870, 12, white, 0.5, self.stop, self )
+	Button:new( level.pause_image, 900, 12, white, 0.5, self.pause, self )
+	Button:new( level.play_image, 930, 12, white, 0.5, self.play, self )
+	Button:new( level.fastplay_image, 960, 12, white, 0.5, self.fastplay, self )
+	Button:new( level.menu_image, 990, 12, white, 0.5, Gamestate.switch, stateMenu )
 	
 	self.fade = { a = 255 }
 	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
@@ -63,8 +70,8 @@ end
 function level:finishSession()
    if game_session_id then
       local duration = love.timer.getTime() - self.session_start
-      local url = string.format( 'game_sessions/%s/level_sessions/new/%s/%i/%i', game_session_id, self.levelData.name, duration, self.max_cash )
-      gamestats_thread:send( 'url', url )
+      local url = string.format( '%s/game_sessions/%s/level_sessions/new/%s/%i/%i', GAMESTATS_HOST, game_session_id, self.levelData.name, duration, self.max_cash )
+      local body, res = socket.http.request(url)
    end
 end
 
@@ -120,6 +127,12 @@ function level:play()
    	commandQueue[WALDO_GREEN]:rewind()
 	end
 	self.state = PLAYING
+	GAME_SPEED = 2
+end
+
+function level:fastplay()
+   level:play()
+   GAME_SPEED = 8
 end
 
 function level:pause()
@@ -170,6 +183,9 @@ function level:update( dt )
 	Tween.update(dt)
 	local dt = dt * GAME_SPEED
 	Timer.update(dt)
+	
+	commandQueue[ WALDO_RED ]:update( dt )
+	commandQueue[ WALDO_GREEN ]:update( dt )
 	
 	for k, v in ipairs( Objects ) do
 		v:update( dt )

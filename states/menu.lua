@@ -5,6 +5,7 @@ local readlevels_thread = love.thread.newThread( 'readlevels', 'readlevels-threa
 
 function menu:init()
 	font_secretcode_16 = love.graphics.newFont( 'fonts/SECRCODE.TTF', 16 )
+	font_secretcode_63 = love.graphics.newFont( 'fonts/SECRCODE.TTF', 63 )
 	--self.levelData = self:loadLevels()
 	self.levelData = {}
 	self.loadLevels()
@@ -22,19 +23,9 @@ function menu:init()
 	]]--
 	
 	self.keys = [[
-tab    - switch waldo
-left   - previous command
-right  - next command
-backspace - remove command
-l      - load
-k      - save
-escape - return to menu at any time
-f12    - toggle fullscreen
-m      - toggle mute
-space  - run / pause program
-period - stop program
-up     - speed up program
-down   - slow down program
+F12, toggle fullscreen.
+M, Mute sounds.
+By Luke Perkin, locofilm.co.uk
 ]]
 end
 
@@ -47,7 +38,7 @@ function menu:addLevelButton( level )
    else
       title = level.name
    end
-   self.buttons[#self.buttons+1] = MenuButton:new( 100, 100+(#self.buttons)*28, title, self.runLevel, self, level )
+   self.buttons[#self.buttons+1] = MenuButton:new( 600, 300+(#self.buttons)*28, title, self.runLevel, self, level )
 end
 
 function menu:update( dt )
@@ -75,16 +66,32 @@ function menu:update( dt )
 end
 
 function menu:draw()
-	love.graphics.setBackgroundColor( 30, 30, 30 )
-	love.graphics.setFont( font_secretcode_12 )
-	for i, button in ipairs( self.buttons ) do button:draw() end
+   local lg = love.graphics
+	lg.setBackgroundColor( 30, 30, 30 )
+	
+	
+	lg.setColor( 110, 110, 110 )
+	lg.rectangle( 'fill', 0, 384, 1024, 384 )
+	
+	lg.setFont( font_secretcode_63 )
+	lg.setColor( 225, 190, 70 )
+	lg.print( 'color factory', 23, 330 )
+	
+	lg.setFont( font_secretcode_12 )
 	love.graphics.setColor( 255,255,255,255 )
-	love.graphics.print( self.keys, 450, 100 )
-	love.graphics.print( "v"..GAME_VERSION, 10, 10 )
+	love.graphics.print( "v"..GAME_VERSION, 30, 387 )
 	if self.tinyUrl then
-	   local s = string.format( "New update available, download from: %s", self.tinyUrl )
-	   love.graphics.print( s, 50, 10 ) 
+	   local s = string.format( "download from: %s", self.tinyUrl )
+	   love.graphics.print( "New update available", 70, 387 ) 
+	   love.graphics.print( s, 70, 405 ) 
 	end
+	
+	
+	for i, button in ipairs( self.buttons ) do 
+	   button:draw( 600,  (390 + (i-1)*28)-((#self.buttons/2)*28) ) 
+	end
+	
+	love.graphics.print( self.keys, 10, 720 )
 end
 
 function menu:mousepressed( x, y, key )

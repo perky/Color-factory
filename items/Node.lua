@@ -91,9 +91,17 @@ function Node:getAnyObjectAbove( )
 	end
 end
 
+function Node:checkBounds( x, y )
+   if self.bounds then
+      if x > self.pos.x-32 and x < self.pos.x+self.bounds.w-32 and y > self.pos.y-32 and y < self.pos.y+self.bounds.h-32 then
+         return true
+      end
+   end
+end
+
 function Node:mousepressed( x, y, key )
 	local mousePos = Node.pixelPosToGridPos( vector( x, y ) )
-	if not self.static and not Node.dragging and self:pixelPos() == mousePos then
+	if not self.static and not Node.dragging and (self:pixelPos() == mousePos or self:checkBounds(x,y)) then
 		self.isDragging = true
 		Node.dragging = true
 	end

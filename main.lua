@@ -30,7 +30,7 @@ TAU = 2 * math.pi
 LEVEL_PATH = "levels/"
 GAME_SPEED = 2
 TILE_SIZE = 64
-
+GAMESTATS_HOST = "http://localhost2:3000"
 
 WALDO_RED 	= 1
 WALDO_GREEN = 2
@@ -48,8 +48,6 @@ stateLevel 	= require "states.level"
 checkupdates_thread = love.thread.newThread( 'checkupdates', 'checkupdates-thread.lua' )
 checkupdates_thread:start()
 checkupdates_thread:send( 'GAME_VERSION', GAME_VERSION )
-gamestats_thread = love.thread.newThread( 'gamestats', 'gamestats-thread.lua' )
-gamestats_thread:start()
 
 function love.load()
 	math.randomseed( os.time() )
@@ -79,27 +77,24 @@ function love.load()
 	love.audio.setVolume( 0.45 )
 	
 	Gamestate.registerEvents()
-	Gamestate.switch( stateSplash )
+	Gamestate.switch( stateMenu )
 	
 	-- start game session.
+	socket.http.TIMEOUT = 5
    game_session_start = love.timer.getTime(  )
-   local url = string.format( 'game_session/new/%s', 'color_factory' )
-   gamestats_thread:send( 'url', url )
+   local url = string.format( '%s/game_session/new/%s', GAMESTATS_HOST, 'color_factory' )
+   local body, res = socket.http.request(url)
+   if body then
+      game_session_id = body
+   end
 end
 
 function love.quit()
    -- finish game session.
    if game_session_id then
       local duration = love.timer.getTime() - game_session_start
-      local url = string.format( 'game_sessions/%s/finish/%i', game_session_id, duration )
-      gamestats_thread:send( 'url', url )
-   end
-end
-
-function love.update(dt)
-   local body = gamestats_thread:receive( 'body' )
-   if body and body ~= "SUCCESS" and body ~= "ERROR" then
-      game_session_id = body
+      local url = string.format( '%s/game_sessions/%s/finish/%i', GAMESTATS_HOST, game_session_id, duration )
+      local body, res = socket.http.request(url)
    end
 end
 

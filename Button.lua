@@ -1,13 +1,25 @@
 Button = class( "Button" )
 Button.instances = {}
 
-function Button:initialize( image, x, y, color, callback, ... )
+function Button:initialize( image, x, y, color, scale, callback, ... )
 	self.pos = vector( x, y )
 	self.image = image
 	self.callback = callback
 	self.callbackArgs = {...}
 	self.color = color
+	self.scale = scale
 	table.insert( self.instances, self )
+	return self
+end
+
+function Button:destroy()
+   for k, v in pairs( self.instances ) do
+      if v == self then
+         table.remove( self.instances, k )
+         break
+      end
+   end
+   self = nil
 end
 
 function Button:apply( method, ... )
@@ -25,7 +37,7 @@ function Button.createCommands( list )
 	local n = 0
 	for i = 0, #CommandQueue.commandImages do
 		if CommandQueue.commandImages[i] and Button.findInList( list, i ) then
-			local button = Button:new( CommandQueue.commandImages[i], 15+n*34, 12, nil, Button.runCommand, i )
+			local button = Button:new( CommandQueue.commandImages[i], 15+n*34, 12, nil, 0.5, Button.runCommand, i )
 			n = n + 1
 		end
 	end
@@ -39,7 +51,8 @@ function Button.findInList( list, command )
 end
 
 function Button:onMousePressed( x, y, button )
-	if vector(self.pos.x+13,self.pos.y+13):distance( vector(x,y) ) < 13 then
+   local r = (54 * self.scale)/2
+	if vector(self.pos.x+r,self.pos.y+r):distance( vector(x,y) ) < r then
 		self.callback( unpack(self.callbackArgs) )
 	end
 end
@@ -47,6 +60,6 @@ end
 function Button:draw()
 	local color = self.color or waldos[currentWaldo].color
 	love.graphics.setColor( color )
-	love.graphics.draw( self.image, self.pos.x, self.pos.y, 0, 0.5 )
+	love.graphics.draw( self.image, self.pos.x, self.pos.y, 0, self.scale )
 end
 

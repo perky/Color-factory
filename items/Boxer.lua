@@ -2,6 +2,7 @@
 Boxer = Node:subclass('Boxer')
 Boxer.backimage = love.graphics.newImage( "images/objects/boxer-background.png" )
 Boxer.animstrip = love.graphics.newImage( "images/objects/boxer-anim.png" )
+Boxer.bounds = { w = 64, h = 128 }
 
 function Boxer:initialize()
 	Node.initialize( self )
@@ -33,6 +34,7 @@ function Boxer:reset()
 end
 
 function Boxer:update( dt )
+   Node.update( self, dt )
    self.animation:update( dt )
 end
 

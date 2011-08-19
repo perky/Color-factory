@@ -1,4 +1,3 @@
-
 Mixer = Boxer:subclass('Mixer')
 Mixer.backimage = love.graphics.newImage( "images/objects/mixer-back.png" )
 Mixer.anim_strip = love.graphics.newImage( "images/objects/mixer-anim.png" )

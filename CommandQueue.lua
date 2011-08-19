@@ -31,6 +31,8 @@ function CommandQueue:initialize( waldoColor )
 	self.commandingWaldo = waldoColor
 	
 	self:createJumpList()
+	
+	self.commandButtons = {}
 end
 
 function CommandQueue:onSensorTrue()
@@ -41,15 +43,15 @@ end
 
 function CommandQueue.loadImages()
 	CommandQueue.commandImages = {}
-	CommandQueue.commandImages[CMD_ROTATE_CW] = love.graphics.newImage( 'images/cw.png' )
-	CommandQueue.commandImages[CMD_ROTATE_CCW] = love.graphics.newImage( 'images/ccw.png' )
-	CommandQueue.commandImages[CMD_EXTEND] = love.graphics.newImage( 'images/extend.png' )
-	CommandQueue.commandImages[CMD_GRABDROP] = love.graphics.newImage( 'images/grabdrop.png' )
-	CommandQueue.commandImages[CMD_SENSE] = love.graphics.newImage( 'images/sense.png' )
-	CommandQueue.commandImages[CMD_JUMP] = love.graphics.newImage( 'images/jump.png' )
-	CommandQueue.commandImages[CMD_LOOPIN] = love.graphics.newImage( 'images/loopin.png' )
-	CommandQueue.commandImages[CMD_LOOPOUT] = love.graphics.newImage( 'images/loopout.png' )
-	--CommandQueue.commandImages[CMD_INPUT] 			= love.graphics.newImage( 'images/input.png' )
+	CommandQueue.commandImages[CMD_ROTATE_CW]    = love.graphics.newImage( 'images/cw.png' )
+	CommandQueue.commandImages[CMD_ROTATE_CCW]   = love.graphics.newImage( 'images/ccw.png' )
+	CommandQueue.commandImages[CMD_EXTEND]       = love.graphics.newImage( 'images/extend.png' )
+	CommandQueue.commandImages[CMD_GRABDROP]     = love.graphics.newImage( 'images/grabdrop.png' )
+	CommandQueue.commandImages[CMD_SENSE]        = love.graphics.newImage( 'images/sense.png' )
+	CommandQueue.commandImages[CMD_JUMP]         = love.graphics.newImage( 'images/jump.png' )
+	CommandQueue.commandImages[CMD_LOOPIN]       = love.graphics.newImage( 'images/loopin.png' )
+	CommandQueue.commandImages[CMD_LOOPOUT]      = love.graphics.newImage( 'images/loopout.png' )
+	--CommandQueue.commandImages[CMD_INPUT] 		= love.graphics.newImage( 'images/input.png' )
 	--CommandQueue.commandImages[CMD_OUTPUT] 		= love.graphics.newImage( 'images/output.png' )
 	CommandQueue.commandImages[CMD_HORIZONTAL] 	= love.graphics.newImage( 'images/horizontal.png' )
 	CommandQueue.commandImages[CMD_VERTICAL] 		= love.graphics.newImage( 'images/vertical.png' )
@@ -64,15 +66,27 @@ function CommandQueue:addCommand( command )
 	else
 		self.commandsPos = self.commandsPos + 1
 	end
+	
+	local col = waldos[self.commandingWaldo].color
+	local btn = Button:new( CommandQueue.commandImages[command], 0, 0, col, 0.65, self.jumpTo, self, self.commandsPos )
 	table.insert(self.commands, self.commandsPos, command )
+	table.insert(self.commandButtons, self.commandsPos, btn)
 	
 	self:createJumpList()
 	self.delegate:commandQueueDidAddCommand()
 end
 
+function CommandQueue:jumpTo( pos )
+   self.commandsPos = pos
+end
+
 function CommandQueue:removeCommand( pos )
 	if #self.commands <= 0 then return end
+	
 	table.remove( self.commands, self.commandsPos )
+	self.commandButtons[self.commandsPos]:destroy()
+	table.remove( self.commandButtons, self.commandsPos )
+	
 	if self.commandsPos > #self.commands then
 		self.commandsPos = self.commandsPos - 1
 	end
@@ -86,22 +100,16 @@ function CommandQueue:clearCommands()
 	self.commandsPos = 1
 end
 
+function CommandQueue:update( dt )
+   local i = 1
+	for k,v in pairs(self.commandButtons) do
+	   v.pos = vector( 450+(44*i)-((self.commandsPos-1)*44), self.y )
+      i = i + 1
+	end
+end
+
 function CommandQueue:draw( x, y )
 	local lg = love.graphics
-	lg.setColor( 255, 255, 255 )
-	-- Draw commands.
-	
-	for i, command in ipairs( self.commands ) do
-		lg.setColor( waldos[self.commandingWaldo].color )
-		if (i == self.commandsPos and (command == CMD_JUMPOUT or command == CMD_JUMP or command == CMD_SENSE)) or
-			(self.commands[self.commandsPos] == CMD_SENSE and i == self.senseList[self.commandsPos]) or
-			(self.commands[self.commandsPos] == CMD_SENSE and i == self.jumpinList[self.senseList[self.commandsPos]]) or
-			(self.commands[self.commandsPos] == CMD_JUMP and i == self.jumpinList[self.commandsPos]) or
-		   (self.commands[self.commandsPos] == CMD_JUMPOUT and i == self.jumpoutList[self.commandsPos]) then
-				lg.setColor( 255, 255,255 )
-		end
-		love.graphics.draw( self.commandImages[command], 450+(44*i)-((self.commandsPos-1)*44), y, 0, 0.65 )
-	end
 end
 
 function CommandQueue:next()

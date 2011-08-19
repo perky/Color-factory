@@ -32,15 +32,15 @@ function MenuButton:mousereleased( x, y, key )
 	end
 end
 
-function MenuButton:draw()
+function MenuButton:draw( x, y )
 	local lg = love.graphics
 	if self.state == BUTTON_MOUSE_OVER then
 		lg.setColor( 210, 255, 210 )
 	else
 		lg.setColor( 210, 210, 210 )
 	end
-	lg.rectangle( 'fill', self.pos.x, self.pos.y, self.w, self.h )
+	lg.rectangle( 'fill', x, y, self.w, self.h )
 	
 	lg.setColor( 0, 0, 0, 255 )
-	lg.print( self.title, self.pos.x+5, self.pos.y+4 )
+	lg.print( self.title, x+5, y+4 )
 end
