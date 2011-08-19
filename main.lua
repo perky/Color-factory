@@ -1,4 +1,4 @@
-GAME_VERSION = "0.12"
+GAME_VERSION = "0.13"
 
 vector 		= require "util.vector"
 Timer  		= require "util.timer"
@@ -24,13 +24,13 @@ require "items.Input"
 require "items.Output"
 require "AnAL.AnAL"
 require 'luahub.init'
+require 'gamestats.gamestats'
 
 TAU = 2 * math.pi
 
 LEVEL_PATH = "levels/"
 GAME_SPEED = 2
 TILE_SIZE = 64
-GAMESTATS_HOST = "http://localhost2:3000"
 
 WALDO_RED 	= 1
 WALDO_GREEN = 2
@@ -80,22 +80,17 @@ function love.load()
 	Gamestate.switch( stateMenu )
 	
 	-- start game session.
-	socket.http.TIMEOUT = 5
-   game_session_start = love.timer.getTime(  )
-   local url = string.format( '%s/game_session/new/%s', GAMESTATS_HOST, 'color_factory' )
-   local body, res = socket.http.request(url)
-   if body then
-      game_session_id = body
-   end
+	gamestats:game_session_start()
 end
 
 function love.quit()
    -- finish game session.
-   if game_session_id then
-      local duration = love.timer.getTime() - game_session_start
-      local url = string.format( '%s/game_sessions/%s/finish/%i', GAMESTATS_HOST, game_session_id, duration )
-      local body, res = socket.http.request(url)
-   end
+   gamestats:setBlocking( true )
+   gamestats:game_session_end()
+end
+
+function love.update( dt )
+   gamestats:update( dt )
 end
 
 local _mouseGetX = love.mouse.getX

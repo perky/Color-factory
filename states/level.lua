@@ -60,24 +60,12 @@ function level:enter( previous, levelData )
 	self.fade = { a = 255 }
 	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
 	
-	self:startSession()
-end
-
-function level:startSession()
-   self.session_start = love.timer.getTime(  )
-end
-
-function level:finishSession()
-   if game_session_id then
-      local duration = love.timer.getTime() - self.session_start
-      local url = string.format( '%s/game_sessions/%s/level_sessions/new/%s/%i/%i', GAMESTATS_HOST, game_session_id, self.levelData.name, duration, self.max_cash )
-      local body, res = socket.http.request(url)
-   end
+	gamestats:level_session_start()
 end
 
 function level:leave()
+   gamestats:level_session_end( self.levelData.name, self.max_cash )
 	self:saveState()
-	self:finishSession()
 	Objects = nil
 	commandQueue = nil
 	waldos = nil
@@ -87,8 +75,9 @@ function level:leave()
 end
 
 function level:quit()
+   gamestats:setBlocking( true )
+   gamestats:level_session_end( self.levelData.name, self.max_cash )
 	self:saveState()
-	self:finishSession()
 end
 
 function level:outputDidOutput( output, obj )
