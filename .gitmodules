@@ -6,3 +6,4 @@
 	url = https://github.com/kikito/middleclass-extras.git
 [submodule "luahub"]
 	path = luahub
+	url = https://perky@github.com/perky/luahub.git
