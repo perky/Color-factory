@@ -6,4 +6,3 @@
 	url = https://github.com/kikito/middleclass-extras.git
 [submodule "luahub"]
 	path = luahub
-	url = https://github.com/gvx/luahub.git

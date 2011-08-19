@@ -39,6 +39,7 @@ function level:enter( previous, levelData )
 	waitingQueue = {}
 	self.countdown = COUNTDOWN_DURATION
 	self.state = STOPPED
+	self.max_cash = 0
 	
 	self.levelData = levelData
 	self:loadLevel( levelData )
@@ -51,10 +52,25 @@ function level:enter( previous, levelData )
 	
 	self.fade = { a = 255 }
 	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
+	
+	self:startSession()
+end
+
+function level:startSession()
+   self.session_start = love.timer.getTime(  )
+end
+
+function level:finishSession()
+   if game_session_id then
+      local duration = love.timer.getTime() - self.session_start
+      local url = string.format( 'game_sessions/%s/level_sessions/new/%s/%i/%i', game_session_id, self.levelData.name, duration, self.max_cash )
+      gamestats_thread:send( 'url', url )
+   end
 end
 
 function level:leave()
 	self:saveState()
+	self:finishSession()
 	Objects = nil
 	commandQueue = nil
 	waldos = nil
@@ -65,6 +81,7 @@ end
 
 function level:quit()
 	self:saveState()
+	self:finishSession()
 end
 
 function level:outputDidOutput( output, obj )
@@ -142,8 +159,10 @@ function level:tryTick()
    commandQueue[WALDO_RED]:runCommand()
 	commandQueue[WALDO_GREEN]:runCommand()
 	self.countdown = self.countdown - 1
+	
 	if self.countdown == 0 then
 	   self:pause()
+	   if self.cash > self.max_cash then self.max_cash = self.cash end
 	end
 end
 
