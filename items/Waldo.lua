@@ -120,7 +120,8 @@ end
 function Waldo:draw()
 	if self.disabled then return end
 	local lg = love.graphics
-	lg.setLine( 1, 'smooth' )
+	lg.setLineWidth( 1 )
+	lg.setLineStyle( 'smooth' )
 	
 	-- Draw square base frame.
 	lg.setColor( self.color[1], self.color[2], self.color[3], 32 )

@@ -99,7 +99,8 @@ function Input:draw()
 	end
 	
 	-- Draw pipe running from left of screen.
-	lg.setLine( 12, 'rough' )
+	lg.setLineWidth( 12 )
+	lg.setLineStyle( 'rough' )
 	lg.setColor( 255, 255, 255, 128 )
 	lg.line( 0, self.pos.y, self.pos.x, self.pos.y )
 	

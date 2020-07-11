@@ -191,14 +191,16 @@ function level:draw()
 	local lg = love.graphics
 	-- Draw grid lines.
 	lg.setColor( 64, 64, 64 )
-	lg.setLine( 1, 'rough' )
+	lg.setLineWidth( 1 )
+	lg.setLineStyle( 'rough' )
 	for x = 0, 1024, TILE_SIZE do
 		lg.line( x, 0, x, 768 )
 	end
 	for y = 0, 768, TILE_SIZE do
 		lg.line( 0, y, 1024, y )
 	end
-	lg.setLine( 1, 'smooth' )
+	lg.setLineWidth( 1 )
+	lg.setLineStyle( 'smooth' )
 	
 	-- Draw items.
 	table.sort( Objects, function(a,b) return a.z < b.z end)
@@ -213,7 +215,8 @@ function level:draw()
 	
 	-- Draw currently selected waldo color.
 	lg.setColor( waldos[currentWaldo].color )
-	lg.setLine( 10, 'rough' )
+	lg.setLineWidth( 10 )
+	lg.setLineStyle( 'rough' )
 	lg.line( 0, 0, 1024, 0 )
 	
 	Button:apply('draw')

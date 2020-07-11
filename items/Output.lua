@@ -76,7 +76,8 @@ function Output:draw()
 	
 	-- Draw output pipe
 	lg.setColor( 255,255,255,128 )
-	lg.setLine( 12, 'rough' )
+	lg.setLineWidth( 12 )
+	lg.setLineStyle( 'rough' )
 	lg.line( self.pos.x, self.pos.y, 1024, self.pos.y )
 	
 	love.graphics.setColor( 0,0,0,255 )
