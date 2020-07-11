@@ -1,7 +1,9 @@
 require "MenuButton"
 local menu = Gamestate.new()
-local this_thread = love.thread.getThread()
-local readlevels_thread = love.thread.newThread( 'readlevels', 'readlevels-thread.lua' )
+local resume_channel = love.thread.getChannel('resume')
+local level_string_channel = love.thread.getChannel('level_string')
+local level_filename_channel = love.thread.getChannel('level_filename')
+local readlevels_thread = love.thread.newThread( 'readlevels-thread.lua' )
 
 function menu:init()
 	font_secretcode_16 = love.graphics.newFont( 'fonts/SECRCODE.TTF', 16 )
@@ -49,10 +51,10 @@ function menu:update( dt )
 		menu_song:play()
 	end
 	-- Check for level data string from readlevels thread.
-	local levelString = readlevels_thread:receive( 'level_string' )
+	local levelString = level_string_channel:pop()
 	if levelString then
-	   local filename = readlevels_thread:receive( 'level_filename' )
-	   readlevels_thread:send( 'resume', true )
+	   local filename = level_filename_channel:pop()
+	   resume_channel:push( true )
 	   local level = assert( loadstring(levelString) )()
 	   level.filename = filename
 	   self.levelData[#self.levelData+1] = level
