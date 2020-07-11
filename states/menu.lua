@@ -79,7 +79,7 @@ function menu:draw()
 	lg.setColor( 225, 190, 70 )
 	lg.print( 'color factory', 23, 330 )
 	
-	lg.setFont( font_secretcode_12 )
+	lg.setFont( font_secretcode_16 )
 	love.graphics.setColor( 255,255,255,255 )
 	love.graphics.print( "v"..GAME_VERSION, 30, 387 )
 	if self.tinyUrl then
