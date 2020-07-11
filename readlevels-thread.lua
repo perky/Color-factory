@@ -2,7 +2,7 @@ require 'love.filesystem'
 local this_thread = love.thread.getThread()
 
 local function readLevelFiles( levelDir, levelData )
-	local levelFilenames = love.filesystem.enumerate( levelDir )
+	local levelFilenames = love.filesystem.getDirectoryItems( levelDir )
 	local levelString
 	for i, levelFilename in ipairs( levelFilenames ) do
 	   local extension = string.sub( levelFilename, -4, -1 )

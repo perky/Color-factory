@@ -60,8 +60,8 @@ function love.load()
 	-- Set the write directory
 	love.filesystem.setIdentity("colorfactory")
 	-- create the custom levels folder if it doesn't exist.
-	if not love.filesystem.exists( "customlevels" ) then
-		love.filesystem.mkdir( "customlevels" )
+	if not love.filesystem.getInfo( "customlevels" ) then
+		love.filesystem.createDirectory( "customlevels" )
 		local templatefile = love.filesystem.newFile( "customlevels/customtemplate.lua" )
 		templatefile:open('w')
 		for line in love.filesystem.lines( "customtemplate.lua" ) do

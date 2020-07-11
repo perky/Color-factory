@@ -401,7 +401,7 @@ function level:loadState()
 	   saveFilename = format( "levelsave_%03d.lua", self.levelData.number )
 	end
 	
-	if love.filesystem.exists( saveFilename ) then
+	if love.filesystem.getInfo( saveFilename ) then
 		local saveChunk = fs.load( saveFilename )
 		local saveTable = saveChunk()
 		level:reset()
