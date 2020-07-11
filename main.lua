@@ -52,7 +52,7 @@ checkupdates_thread:send( 'GAME_VERSION', GAME_VERSION )
 function love.load()
 	math.randomseed( os.time() )
 	-- setup screen mode.
-	love.graphics.setMode( 1024, 768, false, false, 4 )
+	love.window.setMode( 1024, 768, {fullscreen = false, vsync = 0, msaa = 4 })
 	screenOffset = { x = 0, y = 0 }
 	isFullscreen = false
 	love.graphics.setBackgroundColor( 34, 34, 34 )
@@ -118,13 +118,14 @@ end
 function toggleFullscreen( )
 	if isFullscreen then
 		isFullscreen = false
-		love.graphics.setMode( 1024, 768, false, false, 8 )
+		love.window.setMode( 1024, 768, {fullscreen = false, vsync = 0, msaa = 8 })
 		screenOffset = { x = 0, y = 0 }
 	else
 		isFullscreen = true
-		love.graphics.setMode( 0, 0, true, false, 8 )
-		local x = love.graphics.getWidth()/2 - 1024/2
-		local y = love.graphics.getHeight()/2 - 768/2
+		love.window.setMode( 0, 0, {fullscreen = true, vsync = 0, msaa = 8 } )
+		local mode_x, mode_y, mode_flags = love.window.getMode()
+		local x = mode_x/2 - 1024/2
+		local y = mode_y/2 - 768/2
 		screenOffset = { x = x, y = y }
 	end
 end
