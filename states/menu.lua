@@ -59,10 +59,10 @@ function menu:update( dt )
 	   self:addLevelButton( level )
 	end
 	-- Check for tinyUrl of updated game.
-	local tinyUrl = checkupdates_thread:receive( 'tiny_url' )
-	if tinyUrl then
-	   self.tinyUrl = tinyUrl
-	end
+	-- local tinyUrl = checkupdates_thread:receive( 'tiny_url' )
+	-- if tinyUrl then
+	--   self.tinyUrl = tinyUrl
+	-- end
 end
 
 function menu:draw()
