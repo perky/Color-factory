@@ -47,7 +47,7 @@ function menu:update( dt )
    -- update buttons
 	for i, button in ipairs( self.buttons ) do button:update(dt) end
 	-- Play menu song once splash song has finished.
-	if splash_song:isStopped() then
+	if not splash_song:isPlaying() then
 		menu_song:play()
 	end
 	-- Check for level data string from readlevels thread.
