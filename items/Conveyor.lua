@@ -105,7 +105,8 @@ function Conveyor:draw()
 	local startPos = self.pos - self.directionVec*TILE_SIZE
 	local endPos   = self.endPoint.pos + self.directionVec*TILE_SIZE
 	
-	lg.setLine( 1, 'rough' )
+	lg.setLineWidth( 1 )
+	lg.setLineStyle( 'rough' )
 	lg.setColor( 155, 155, 155, 255 )
 	lg.circle( 'fill', self.pos.x, self.pos.y, 10, 50 )
 	lg.circle( 'fill', self.endPoint.pos.x, self.endPoint.pos.y, 10, 50 )

@@ -1,16 +1,19 @@
 require 'love.filesystem'
-local this_thread = love.thread.getThread()
+
+local resume_channel = love.thread.getChannel('resume')
+local level_string_channel = love.thread.getChannel('level_string')
+local level_filename_channel = love.thread.getChannel('level_filename')
 
 local function readLevelFiles( levelDir, levelData )
-	local levelFilenames = love.filesystem.enumerate( levelDir )
+	local levelFilenames = love.filesystem.getDirectoryItems( levelDir )
 	local levelString
 	for i, levelFilename in ipairs( levelFilenames ) do
 	   local extension = string.sub( levelFilename, -4, -1 )
 	   if extension == ".lua" then
    		levelString = love.filesystem.read( levelDir .. levelFilename )
-   		this_thread:send( 'level_filename', string.sub(levelFilename, 1, -5) )
-   		this_thread:send( 'level_string', levelString )
-   		this_thread:demand( 'resume' )
+   		level_filename_channel:push( string.sub(levelFilename, 1, -5) )
+   		level_string_channel:push( levelString )
+   		resume_channel:demand()
    	end
 	end
 	return levelData

@@ -35,9 +35,9 @@ function level:enter( previous, levelData )
 	waldos		 = {}
 	
 	waldos[WALDO_GREEN] 	= Waldo:new( 0, 0, "Green Waldo", WALDO_GREEN )
-	waldos[WALDO_GREEN]:setColor( 55, 255, 55 )
+	waldos[WALDO_GREEN]:setColor( 55/255, 255/255, 55/255 )
 	waldos[WALDO_RED] 	= Waldo:new( 0, 0, "Red Waldo", WALDO_RED )
-	waldos[WALDO_RED]:setColor( 255, 55, 55 )
+	waldos[WALDO_RED]:setColor( 255/255, 55/255, 55/255 )
 	
 	dtTimer = 0
 	waitingQueue = {}
@@ -49,7 +49,7 @@ function level:enter( previous, levelData )
 	self:loadLevel( levelData )
 	
 	-- create playback buttons.
-	local white = {255,255,255}
+	local white = {255/255,255/255,255/255}
 	Button:new( level.togglewaldo_image, 840, 12, white, 0.5, switchWaldo )
 	Button:new( level.stop_image, 870, 12, white, 0.5, self.stop, self )
 	Button:new( level.pause_image, 900, 12, white, 0.5, self.pause, self )
@@ -57,8 +57,8 @@ function level:enter( previous, levelData )
 	Button:new( level.fastplay_image, 960, 12, white, 0.5, self.fastplay, self )
 	Button:new( level.menu_image, 990, 12, white, 0.5, Gamestate.switch, stateMenu )
 	
-	self.fade = { a = 255 }
-	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
+	self.fade = { a = 255/255 }
+	Tween( 3, self.fade, { a = 0/255 }, 'inQuad' )
 	
 	gamestats:level_session_start()
 end
@@ -190,22 +190,24 @@ end
 function level:draw()
 	local lg = love.graphics
 	-- Draw grid lines.
-	lg.setColor( 64, 64, 64 )
-	lg.setLine( 1, 'rough' )
+	lg.setColor( 64/255, 64/255, 64/255 )
+	lg.setLineWidth( 1 )
+	lg.setLineStyle( 'rough' )
 	for x = 0, 1024, TILE_SIZE do
 		lg.line( x, 0, x, 768 )
 	end
 	for y = 0, 768, TILE_SIZE do
 		lg.line( 0, y, 1024, y )
 	end
-	lg.setLine( 1, 'smooth' )
+	lg.setLineWidth( 1 )
+	lg.setLineStyle( 'smooth' )
 	
 	-- Draw items.
 	table.sort( Objects, function(a,b) return a.z < b.z end)
 	for k, v in ipairs( Objects ) do v:draw() end
 	
 	-- Draw header image.
-	lg.setColor( 255, 255, 255, 255 )
+	lg.setColor( 255/255, 255/255, 255/255, 255/255 )
 	lg.draw( self.header_image, 0, 0 )
 	
 	-- Draw commands.
@@ -213,30 +215,31 @@ function level:draw()
 	
 	-- Draw currently selected waldo color.
 	lg.setColor( waldos[currentWaldo].color )
-	lg.setLine( 10, 'rough' )
+	lg.setLineWidth( 10 )
+	lg.setLineStyle( 'rough' )
 	lg.line( 0, 0, 1024, 0 )
 	
 	Button:apply('draw')
 	
-	lg.setColor( 255,255,255,50 )
+	lg.setColor( 255/255,255/255,255/255,50/255 )
 	lg.rectangle( 'fill', 512-25, 40, 50, 87 )
 	
 	-- Draw cash
-	lg.setColor( 255, 255, 255, 255 )
+	lg.setColor( 255/255, 255/255, 255/255, 255/255 )
 	lg.setFont( font_secretcode_16 )
 	lg.print( "$" .. self.cash, 500, 8 )
 	lg.print( self.countdown, 500, 23 )
 	
 	-- draw tutorial.
 	if self.tutorial then
-		lg.setColor( 255, 255, 255, 255 )
+		lg.setColor( 255/255, 255/255, 255/255, 255/255 )
 		lg.rectangle( 'fill', 0, 184-25, 1024, 400+(25*2) )
-		lg.setColor( 255, 255, 255, 255 )
+		lg.setColor( 255/255, 255/255, 255/255, 255/255 )
 		lg.draw( self.tutorial, 0, 184 )
 	end
 	
 	-- draw fade in.
-	lg.setColor( 255, 255, 255, self.fade.a )
+	lg.setColor( 255/255, 255/255, 255/255, self.fade.a )
 	lg.rectangle( 'fill', 0, 0, 1024, 768 )
 end
 
@@ -401,7 +404,7 @@ function level:loadState()
 	   saveFilename = format( "levelsave_%03d.lua", self.levelData.number )
 	end
 	
-	if love.filesystem.exists( saveFilename ) then
+	if love.filesystem.getInfo( saveFilename ) then
 		local saveChunk = fs.load( saveFilename )
 		local saveTable = saveChunk()
 		level:reset()

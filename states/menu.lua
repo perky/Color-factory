@@ -1,7 +1,9 @@
 require "MenuButton"
 local menu = Gamestate.new()
-local this_thread = love.thread.getThread()
-local readlevels_thread = love.thread.newThread( 'readlevels', 'readlevels-thread.lua' )
+local resume_channel = love.thread.getChannel('resume')
+local level_string_channel = love.thread.getChannel('level_string')
+local level_filename_channel = love.thread.getChannel('level_filename')
+local readlevels_thread = love.thread.newThread( 'readlevels-thread.lua' )
 
 function menu:init()
 	font_secretcode_16 = love.graphics.newFont( 'fonts/SECRCODE.TTF', 16 )
@@ -45,14 +47,14 @@ function menu:update( dt )
    -- update buttons
 	for i, button in ipairs( self.buttons ) do button:update(dt) end
 	-- Play menu song once splash song has finished.
-	if splash_song:isStopped() then
+	if not splash_song:isPlaying() then
 		menu_song:play()
 	end
 	-- Check for level data string from readlevels thread.
-	local levelString = readlevels_thread:receive( 'level_string' )
+	local levelString = level_string_channel:pop()
 	if levelString then
-	   local filename = readlevels_thread:receive( 'level_filename' )
-	   readlevels_thread:send( 'resume', true )
+	   local filename = level_filename_channel:pop()
+	   resume_channel:push( true )
 	   local level = assert( loadstring(levelString) )()
 	   level.filename = filename
 	   self.levelData[#self.levelData+1] = level
@@ -67,18 +69,18 @@ end
 
 function menu:draw()
    local lg = love.graphics
-	lg.setBackgroundColor( 30, 30, 30 )
+	lg.setBackgroundColor( 30/255, 30/255, 30/255 )
 	
 	
-	lg.setColor( 110, 110, 110 )
+	lg.setColor( 110/255, 110/255, 110/255 )
 	lg.rectangle( 'fill', 0, 384, 1024, 384 )
 	
 	lg.setFont( font_secretcode_63 )
-	lg.setColor( 225, 190, 70 )
+	lg.setColor( 225/255, 190/255, 70/255 )
 	lg.print( 'color factory', 23, 330 )
 	
-	lg.setFont( font_secretcode_12 )
-	love.graphics.setColor( 255,255,255,255 )
+	lg.setFont( font_secretcode_16 )
+	love.graphics.setColor( 255/255,255/255,255/255,255/255 )
 	love.graphics.print( "v"..GAME_VERSION, 30, 387 )
 	if self.tinyUrl then
 	   local s = string.format( "download from: %s", self.tinyUrl )
