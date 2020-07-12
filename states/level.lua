@@ -60,11 +60,11 @@ function level:enter( previous, levelData )
 	self.fade = { a = 255 }
 	Tween( 3, self.fade, { a = 0 }, 'inQuad' )
 	
-	gamestats:level_session_start()
+	-- gamestats:level_session_start()
 end
 
 function level:leave()
-   gamestats:level_session_end( self.levelData.name, self.max_cash )
+   --gamestats:level_session_end( self.levelData.name, self.max_cash )
 	self:saveState()
 	Objects = nil
 	commandQueue = nil
@@ -75,8 +75,8 @@ function level:leave()
 end
 
 function level:quit()
-   gamestats:setBlocking( true )
-   gamestats:level_session_end( self.levelData.name, self.max_cash )
+   --gamestats:setBlocking( true )
+   -- gamestats:level_session_end( self.levelData.name, self.max_cash )
 	self:saveState()
 end
 

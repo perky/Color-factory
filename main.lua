@@ -23,8 +23,8 @@ require "items.Conveyor"
 require "items.Input"
 require "items.Output"
 require "AnAL.AnAL"
-require 'luahub.init'
-require 'gamestats.gamestats'
+-- require 'luahub.init'
+--require 'gamestats.gamestats'
 
 TAU = 2 * math.pi
 
@@ -45,9 +45,9 @@ stateSplash = require "states.splash"
 stateMenu	= require "states.menu"
 stateLevel 	= require "states.level"
 
-checkupdates_thread = love.thread.newThread( 'checkupdates', 'checkupdates-thread.lua' )
-checkupdates_thread:start()
-checkupdates_thread:send( 'GAME_VERSION', GAME_VERSION )
+-- checkupdates_thread = love.thread.newThread( 'checkupdates', 'checkupdates-thread.lua' )
+-- checkupdates_thread:start()
+-- checkupdates_thread:send( 'GAME_VERSION', GAME_VERSION )
 
 function love.load()
 	math.randomseed( os.time() )
@@ -80,17 +80,17 @@ function love.load()
 	Gamestate.switch( stateMenu )
 	
 	-- start game session.
-	gamestats:game_session_start()
+	-- gamestats:game_session_start()
 end
 
 function love.quit()
    -- finish game session.
-   gamestats:setBlocking( true )
-   gamestats:game_session_end()
+   -- gamestats:setBlocking( true )
+   -- gamestats:game_session_end()
 end
 
 function love.update( dt )
-   gamestats:update( dt )
+   --gamestats:update( dt )
 end
 
 local _mouseGetX = love.mouse.getX
