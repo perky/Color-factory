@@ -35,12 +35,12 @@ end
 function MenuButton:draw( x, y )
 	local lg = love.graphics
 	if self.state == BUTTON_MOUSE_OVER then
-		lg.setColor( 210, 255, 210 )
+		lg.setColor( 210/255, 255/255, 210/255 )
 	else
-		lg.setColor( 210, 210, 210 )
+		lg.setColor( 210/255, 210/255, 210/255 )
 	end
 	lg.rectangle( 'fill', x, y, self.w, self.h )
 	
-	lg.setColor( 0, 0, 0, 255 )
+	lg.setColor( 0, 0, 0, 255/255 )
 	lg.print( self.title, x+5, y+4 )
 end
