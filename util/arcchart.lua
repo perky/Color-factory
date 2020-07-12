@@ -134,7 +134,7 @@
 		if (self.totalSegments > endseg) then
 			if (self.precalculated) then
 				for currentSegment = startseg, endseg do
-					love.graphics.quad(
+					love.graphics.polygon(
 						self.drawmode,
 						self.innerSegmentUpperX[currentSegment], self.innerSegmentUpperY[currentSegment],
 						self.outerSegmentUpperX[currentSegment], self.outerSegmentUpperY[currentSegment],
@@ -166,7 +166,7 @@
 			local startSegment = (startdegrees - math.mod(startdegrees, self.degreesPerSegment))/self.degreesPerSegment
 			
 			for currentSegment = startSegment, startSegment+segmentsToDraw do
-				love.graphics.quad(
+				love.graphics.polygon(
 					self.drawmode,
 					self.innerSegmentUpperX[currentSegment], self.innerSegmentUpperY[currentSegment],
 					self.outerSegmentUpperX[currentSegment], self.outerSegmentUpperY[currentSegment],
@@ -188,7 +188,7 @@
 		if (self.precalculated) then
 			if(self.endsegment > 0) then	
 				for currentSegment = self.startsegment, self.endsegment do
-					love.graphics.quad(
+					love.graphics.polygon(
 						self.drawmode,
 						self.innerSegmentUpperX[currentSegment], self.innerSegmentUpperY[currentSegment],
 						self.outerSegmentUpperX[currentSegment], self.outerSegmentUpperY[currentSegment],
@@ -348,7 +348,7 @@
 			x4 = self.x+(self.innerRadius*math.sin(currentInnerAngleInRads))
 			y4 = self.y-(self.innerRadius*math.cos(currentInnerAngleInRads))
 			
-			love.graphics.quad("fill", x3,y3,x1,y1,x2,y2,x4,y4)
+			love.graphics.polygon("fill", x3,y3,x1,y1,x2,y2,x4,y4)
 		
 		end
 		
